@@ -64,10 +64,16 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
 SESSION_COOKIE_SAMESITE = 'Lax'
 
-# MongoDB connection
+# MongoDB connection with short timeouts for free hosting
 import mongoengine
 MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/superhub_db')
-mongoengine.connect(host=MONGODB_URI)
+mongoengine.connect(
+    host=MONGODB_URI,
+    serverSelectionTimeoutMS=10000,
+    connectTimeoutMS=10000,
+    socketTimeoutMS=10000,
+    maxPoolSize=1,
+)
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
