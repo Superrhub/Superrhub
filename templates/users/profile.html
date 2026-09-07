@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} — SuperHub{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Profile Header -->
+  <div class="rounded-2xl border p-8 mb-10 flex flex-col sm:flex-row items-center sm:items-start gap-6"
+       style="background: linear-gradient(135deg, #111 0%, #0d0d0d 100%); border-color:#222;">
+
+    <!-- Avatar -->
+    <div class="flex-shrink-0">
+      {% if profile_user.avatar %}
+        <img src="{{ profile_user.avatar }}" alt="{{ profile_user.username }}"
+             class="w-24 h-24 rounded-full object-cover border-2"
+             style="border-color: rgba(201,168,76,0.5);" />
+      {% else %}
+        <div class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold font-serif"
+             style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+          {{ profile_user.username|first|upper }}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div class="flex-1 text-center sm:text-left">
+      <h1 class="text-2xl font-bold text-white font-serif mb-1">{{ profile_user.username }}</h1>
+      <p class="text-gray-500 text-sm mb-3">Member since {{ profile_user.created_at|date:"F Y" }}</p>
+
+      {% if profile_user.bio %}
+        <p class="text-gray-400 leading-relaxed mb-4 max-w-lg">{{ profile_user.bio }}</p>
+      {% endif %}
+
+      <div class="flex items-center justify-center sm:justify-start gap-6 text-sm mb-5">
+        <div class="text-center">
+          <div class="text-xl font-bold text-gold-500">{{ profile_user.followers_count }}</div>
+          <div class="text-gray-500 text-xs">Followers</div>
+        </div>
+        <div class="w-px h-8" style="background:#222;"></div>
+        <div class="text-center">
+          <div class="text-xl font-bold text-gold-500">{{ profile_user.following_count }}</div>
+          <div class="text-gray-500 text-xs">Following</div>
+        </div>
+        <div class="w-px h-8" style="background:#222;"></div>
+        <div class="text-center">
+          <div class="text-xl font-bold text-gold-500">{{ user_stories|length }}</div>
+          <div class="text-gray-500 text-xs">Stories</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+        {% if is_own %}
+          <a href="{% url 'edit_profile' profile_user.username %}" class="btn-secondary text-sm px-5 py-2">
+            ✏️ Edit Profile
+          </a>
+          <a href="{% url 'create_story' %}" class="btn-primary text-sm px-5 py-2">
+            ✍️ Write a Story
+          </a>
+        {% else %}
+          {% if current_user %}
+            <form action="{% url 'follow' profile_user.username %}" method="POST">
+              {% csrf_token %}
+              <button type="submit"
+                      class="{% if is_following %}btn-secondary{% else %}btn-primary{% endif %} text-sm px-6 py-2">
+                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn-primary text-sm px-6 py-2">Follow</a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Stories by this user -->
+  <h2 class="section-heading mb-6">
+    📚 Stories by {{ profile_user.username }}
+  </h2>
+
+  {% if user_stories %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {% for story in user_stories %}
+        {% include 'partials/story_card.html' with story=story %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-16 border border-dashed rounded-2xl" style="border-color:#222;">
+      <div class="text-5xl mb-3">📭</div>
+      <p class="text-gray-500">No published stories yet.</p>
+      {% if is_own %}
+        <a href="{% url 'create_story' %}" class="btn-primary mt-4 inline-flex text-sm">
+          Write Your First Story
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

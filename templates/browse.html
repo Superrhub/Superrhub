@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Browse Stories — SuperHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Page heading -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-white font-serif mb-1">Browse Stories</h1>
+    <p class="text-gray-500 text-sm">
+      {% if total %}{{ total }} stor{{ total|pluralize:"y,ies" }} found{% endif %}
+      {% if current_genre %} in <span class="text-gold-500">{{ current_genre }}</span>{% endif %}
+      {% if search %} matching "<span class="text-gold-500">{{ search }}</span>"{% endif %}
+    </p>
+  </div>
+
+  <!-- Search + Filter -->
+  <div class="flex flex-col sm:flex-row gap-4 mb-8">
+    <!-- Search -->
+    <form method="GET" action="{% url 'browse' %}" class="flex-1 flex gap-2">
+      {% if current_genre %}
+        <input type="hidden" name="genre" value="{{ current_genre }}" />
+      {% endif %}
+      <input
+        type="text"
+        name="search"
+        value="{{ search }}"
+        placeholder="Search stories by title..."
+        class="form-input flex-1"
+        style="max-width: 400px;"
+      />
+      <button type="submit" class="btn-primary px-4 py-2">🔍</button>
+    </form>
+
+    <!-- Clear filters -->
+    {% if search or current_genre %}
+      <a href="{% url 'browse' %}" class="btn-secondary text-sm">✕ Clear filters</a>
+    {% endif %}
+  </div>
+
+  <!-- Genre Pills -->
+  <div class="flex flex-wrap gap-2 mb-8">
+    <a href="{% url 'browse' %}{% if search %}?search={{ search }}{% endif %}"
+       class="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
+       style="{% if not current_genre %}background:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.5); color:#c9a84c;{% else %}background:#111; border-color:#222; color:#666;{% endif %}">
+      All
+    </a>
+    {% for genre in genres %}
+      <a href="{% url 'browse' %}?genre={{ genre }}{% if search %}&search={{ search }}{% endif %}"
+         class="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
+         style="{% if current_genre == genre %}background:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.5); color:#c9a84c;{% else %}background:#111; border-color:#222; color:#666;{% endif %}">
+        {{ genre }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Stories Grid -->
+  {% if stories %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-10">
+      {% for story in stories %}
+        {% include 'partials/story_card.html' with story=story %}
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-center gap-4">
+      {% if has_prev %}
+        <a href="?page={{ page|add:'-1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+           class="btn-secondary text-sm px-5 py-2">
+          &larr; Previous
+        </a>
+      {% endif %}
+      <span class="text-gray-500 text-sm">Page {{ page }}</span>
+      {% if has_next %}
+        <a href="?page={{ page|add:'1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+           class="btn-secondary text-sm px-5 py-2">
+          Next &rarr;
+        </a>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <!-- Empty state -->
+    <div class="text-center py-24 text-gray-600">
+      <div class="text-6xl mb-5">📭</div>
+      <h3 class="text-xl font-semibold text-gray-400 mb-2">No stories found</h3>
+      <p class="text-sm mb-6">Try a different search or browse another genre.</p>
+      <a href="{% url 'browse' %}" class="btn-secondary text-sm">Clear Search</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

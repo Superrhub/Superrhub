@@ -1,0 +1,79 @@
+<div>
+  <h3 class="text-base font-semibold text-white mb-4">
+    💬 Comments ({{ comments|length }})
+  </h3>
+
+  <!-- Add Comment Form -->
+  {% if current_user %}
+    <form
+      hx-post="{% url 'add_comment' story_id %}"
+      hx-target="#comments-section"
+      hx-swap="innerHTML"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      class="mb-5"
+    >
+      {% csrf_token %}
+      <div class="flex gap-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1"
+             style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+          {{ current_user.username|first|upper }}
+        </div>
+        <div class="flex-1">
+          <textarea
+            name="content"
+            rows="2"
+            maxlength="500"
+            placeholder="Share your thoughts..."
+            class="form-input text-sm"
+            required
+          ></textarea>
+          <button type="submit" class="btn-primary text-xs px-4 py-1.5 mt-2">Post</button>
+        </div>
+      </div>
+    </form>
+  {% else %}
+    <div class="text-center py-4 mb-5 rounded-xl border border-dashed" style="border-color:#2a2a2a;">
+      <p class="text-gray-600 text-sm">
+        <a href="{% url 'login' %}" class="text-gold-500 hover:text-gold-300">Log in</a>
+        to leave a comment.
+      </p>
+    </div>
+  {% endif %}
+
+  <!-- Comments List -->
+  {% if comments %}
+    <div class="space-y-4">
+      {% for comment in comments %}
+        <div class="flex gap-3">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+               style="background:#1a1a1a; border:1px solid #2a2a2a; color:#c9a84c;">
+            {{ comment.username|first|upper }}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-baseline gap-2 mb-0.5">
+              <a href="{% url 'profile' comment.username %}"
+                 class="text-sm font-semibold text-gold-500 hover:text-gold-300 transition-colors">
+                {{ comment.username }}
+              </a>
+              <span class="text-xs text-gray-600">{{ comment.created_at|timesince }} ago</span>
+            </div>
+            <p class="text-gray-400 text-sm leading-relaxed">{{ comment.content }}</p>
+            {% if current_user and comment.user_id == current_user.id|stringformat:"s" %}
+              <form action="{% url 'delete_comment' comment.id %}" method="POST" class="inline">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-xs text-red-500 hover:text-red-400 transition-colors mt-1">
+                  Delete
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-8 text-gray-600 text-sm">
+      No comments yet. Be the first!
+    </div>
+  {% endif %}
+</div>

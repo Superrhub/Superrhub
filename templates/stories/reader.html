@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load story_filters %}
+{% block title %}{{ chapter.title }} — {{ story.title }} — SuperHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  body { background: #fdf6e3 !important; color: #1a1008 !important; }
+  .reader-top-bar { background: #fff; border-bottom: 1px solid #e8dcc8; }
+  .reader-top-bar a, .reader-top-bar span { color: #555 !important; }
+  footer { display: none !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Top Bar -->
+<div class="reader-top-bar sticky top-0 z-40 px-4 py-3">
+  <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+    <a href="{% url 'story_detail' story.id %}"
+       class="flex items-center gap-2 text-sm font-medium hover:opacity-70 transition-opacity"
+       style="color:#555;">
+      &larr; {{ story.title }}
+    </a>
+    <span class="text-sm" style="color:#999;">
+      Chapter {{ chapter.chapter_number }} of {{ total_chapters }}
+    </span>
+    <!-- Progress bar -->
+    <div class="hidden sm:flex items-center gap-2 text-xs" style="color:#999;">
+      <div class="w-24 h-1.5 rounded-full" style="background:#e8dcc8;">
+        <div class="h-full rounded-full" style="background:#c9a84c; width: {% widthratio chapter.chapter_number total_chapters 100 %}%;"></div>
+      </div>
+      {% widthratio chapter.chapter_number total_chapters 100 %}%
+    </div>
+  </div>
+</div>
+
+<!-- Reader Content -->
+<div class="max-w-2xl mx-auto px-4 sm:px-8 py-12">
+
+  <!-- Chapter Header -->
+  <div class="mb-10 text-center">
+    <p class="text-sm font-medium mb-2" style="color:#c9a84c;">
+      Chapter {{ chapter.chapter_number }}
+    </p>
+    <h1 class="text-3xl sm:text-4xl font-bold font-serif mb-3" style="color:#1a0a00;">
+      {{ chapter.title }}
+    </h1>
+    <div class="w-16 h-0.5 mx-auto rounded" style="background:#c9a84c;"></div>
+  </div>
+
+  <!-- Chapter Content -->
+  <div class="reader-content reader-body">
+    {{ chapter.content|linebreak_tag }}
+  </div>
+
+  <!-- Navigation -->
+  <div class="flex items-center justify-between mt-16 pt-8 border-t" style="border-color:#e8dcc8;">
+    {% if prev_num %}
+      <a href="{% url 'reader' story.id prev_num %}"
+         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all text-sm"
+         style="background:#fff; border:1px solid #e8dcc8; color:#555;"
+         onmouseover="this.style.borderColor='#c9a84c'; this.style.color='#a07030';"
+         onmouseout="this.style.borderColor='#e8dcc8'; this.style.color='#555';">
+        &larr; Previous Chapter
+      </a>
+    {% else %}
+      <a href="{% url 'story_detail' story.id %}"
+         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
+         style="background:#fff; border:1px solid #e8dcc8; color:#555;">
+        &larr; Back to Story
+      </a>
+    {% endif %}
+
+    <a href="{% url 'story_detail' story.id %}"
+       class="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+       style="color:#c9a84c;"
+       onmouseover="this.style.background='rgba(201,168,76,0.1)';"
+       onmouseout="this.style.background='transparent';">
+      Contents
+    </a>
+
+    {% if next_num %}
+      <a href="{% url 'reader' story.id next_num %}"
+         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all text-sm"
+         style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#fff;"
+         onmouseover="this.style.opacity='0.9';"
+         onmouseout="this.style.opacity='1';">
+        Next Chapter &rarr;
+      </a>
+    {% else %}
+      <div class="text-center px-6 py-3">
+        <span class="text-sm font-medium" style="color:#c9a84c;">🎉 The End</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Story complete message -->
+  {% if not next_num %}
+    <div class="mt-10 text-center p-8 rounded-2xl border" style="background:#fff8ee; border-color:#e8dcc8;">
+      <div class="text-3xl mb-3">📖</div>
+      <h3 class="text-xl font-bold font-serif mb-2" style="color:#1a0a00;">You've finished this story!</h3>
+      <p class="text-sm mb-5" style="color:#888;">Thank you for reading {{ story.title }}</p>
+      <a href="{% url 'browse' %}"
+         class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
+         style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+        Discover More Stories
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Override navbar styles for reader
+  document.querySelector('nav').style.background = '#fff';
+  document.querySelector('nav').style.borderBottomColor = '#e8dcc8';
+</script>
+{% endblock %}

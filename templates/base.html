@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SuperHub — Where Stories Live{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Discover and publish stories on SuperHub.{% endblock %}" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              300: '#f0d070',
+              400: '#e8c040',
+              500: '#c9a84c',
+              600: '#a07030',
+              700: '#7a5020',
+            },
+            dark: {
+              50:  '#2a2a2a',
+              100: '#1e1e1e',
+              200: '#181818',
+              300: '#141414',
+              400: '#111111',
+              500: '#0d0d0d',
+              600: '#0a0a0a',
+            }
+          },
+          fontFamily: {
+            sans:  ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Playfair Display', 'Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+
+  <!-- Custom CSS -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-dark-600 text-gray-200 min-h-screen flex flex-col">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="sticky top-0 z-50 bg-dark-500 border-b border-dark-50" style="background:#0d0d0d;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center gap-2 flex-shrink-0">
+          <div class="w-9 h-9 rounded-lg flex items-center justify-center font-serif font-bold text-dark-600 text-lg"
+               style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
+          <span class="text-white font-bold text-xl tracking-tight">Super<span class="gold-text">Hub</span></span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex items-center gap-1">
+          <a href="{% url 'home' %}" class="nav-link">Home</a>
+          <a href="{% url 'browse' %}" class="nav-link">Browse</a>
+          {% if current_user %}
+            <a href="{% url 'my_stories' %}" class="nav-link">My Stories</a>
+            <a href="{% url 'reading_list' %}" class="nav-link">Reading List</a>
+          {% endif %}
+        </div>
+
+        <!-- Desktop Auth -->
+        <div class="hidden md:flex items-center gap-3">
+          {% if current_user %}
+            <a href="{% url 'create_story' %}" class="btn-primary text-sm py-2 px-4">
+              ✏️ Write
+            </a>
+            <!-- User dropdown -->
+            <div class="relative group">
+              <button class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-dark-50">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-dark-600 font-bold text-sm"
+                     style="background: linear-gradient(135deg, #f0d070, #c9a84c);">
+                  {{ current_user.username|first|upper }}
+                </div>
+                <span class="font-medium">{{ current_user.username }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <!-- Dropdown -->
+              <div class="absolute right-0 mt-1 w-48 bg-dark-100 border border-dark-50 rounded-xl shadow-2xl
+                          opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div class="py-1">
+                  <a href="{% url 'profile' current_user.username %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    👤 My Profile
+                  </a>
+                  <a href="{% url 'my_stories' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    📚 My Stories
+                  </a>
+                  <a href="{% url 'reading_list' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    🔖 Reading List
+                  </a>
+                  <hr class="border-dark-50 my-1" />
+                  <a href="{% url 'logout' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-dark-50 transition-colors">
+                    🚪 Logout
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <a href="{% url 'login' %}" class="nav-link">Log in</a>
+            <a href="{% url 'register' %}" class="btn-primary text-sm py-2 px-4">Join Free</a>
+          {% endif %}
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-400 hover:text-white p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="md:hidden hidden pb-4 border-t border-dark-50 pt-3">
+        <div class="flex flex-col gap-1">
+          <a href="{% url 'home' %}" class="nav-link px-2 py-2">Home</a>
+          <a href="{% url 'browse' %}" class="nav-link px-2 py-2">Browse</a>
+          {% if current_user %}
+            <a href="{% url 'my_stories' %}" class="nav-link px-2 py-2">My Stories</a>
+            <a href="{% url 'reading_list' %}" class="nav-link px-2 py-2">Reading List</a>
+            <a href="{% url 'profile' current_user.username %}" class="nav-link px-2 py-2">My Profile</a>
+            <a href="{% url 'create_story' %}" class="btn-primary mt-2 justify-center">✏️ Write a Story</a>
+            <a href="{% url 'logout' %}" class="text-red-400 text-sm px-2 py-2 hover:text-red-300">Logout</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="nav-link px-2 py-2">Log in</a>
+            <a href="{% url 'register' %}" class="btn-primary mt-2 justify-center">Join Free</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MESSAGES ===== -->
+  {% if messages %}
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
+      {% for message in messages %}
+        <div class="msg-{{ message.tags }} flex items-center justify-between gap-3 px-4 py-3 rounded-lg mb-2 text-sm">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100 transition-opacity text-lg leading-none">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-dark-50 mt-16" style="background:#0d0d0d;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Brand -->
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-serif font-bold text-dark-600 text-base"
+               style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
+          <span class="text-white font-bold text-lg">Super<span class="gold-text">Hub</span></span>
+        </div>
+        <!-- Links -->
+        <div class="flex items-center gap-6 text-sm text-gray-500">
+          <a href="{% url 'browse' %}" class="hover:text-gold-500 transition-colors">Browse</a>
+          {% if current_user %}
+            <a href="{% url 'create_story' %}" class="hover:text-gold-500 transition-colors">Write</a>
+          {% else %}
+            <a href="{% url 'register' %}" class="hover:text-gold-500 transition-colors">Join</a>
+          {% endif %}
+        </div>
+        <!-- Copyright -->
+        <p class="text-gray-600 text-sm">
+          &copy; 2026 SuperHub. All rights reserved.
+        </p>
+      </div>
+      <div class="mt-6 text-center text-xs text-gray-700">
+        Featuring <span class="text-gold-500">My Jannah</span> by Muhammad Mubarak Ahmed
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile menu toggle script -->
+  <script>
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (btn && menu) {
+      btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+    }
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

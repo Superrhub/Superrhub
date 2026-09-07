@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}My Stories — SuperHub{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white font-serif">My Stories</h1>
+      <p class="text-gray-500 text-sm mt-1">{{ stories|length }} stor{{ stories|length|pluralize:"y,ies" }} total</p>
+    </div>
+    <a href="{% url 'create_story' %}" class="btn-primary">✏️ New Story</a>
+  </div>
+
+  {% if stories %}
+    <div class="space-y-4">
+      {% for story in stories %}
+        <div class="rounded-xl border p-5 flex items-center gap-5 transition-all"
+             style="background:#111; border-color:#222;"
+             onmouseover="this.style.borderColor='rgba(201,168,76,0.3)';"
+             onmouseout="this.style.borderColor='#222';">
+
+          <!-- Mini Cover -->
+          <div class="w-14 h-20 rounded-lg overflow-hidden flex-shrink-0 border"
+               style="border-color:#2a2a2a;">
+            {% if story.cover_image %}
+              <img src="{{ story.cover_image }}" alt="{{ story.title }}" class="w-full h-full object-cover" />
+            {% else %}
+              <div class="w-full h-full bg-gradient-to-br {{ story.cover_color }} flex items-center justify-center">
+                <span class="font-serif font-bold text-white/50 text-xl">{{ story.title|first|upper }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <h3 class="text-white font-semibold truncate">{{ story.title }}</h3>
+              {% if story.is_published %}
+                <span class="px-2 py-0.5 rounded-full text-xs bg-green-900/40 text-green-400 border border-green-800/40 flex-shrink-0">Published</span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded-full text-xs bg-gray-800 text-gray-500 border border-gray-700 flex-shrink-0">Draft</span>
+              {% endif %}
+              {% if story.is_completed %}
+                <span class="px-2 py-0.5 rounded-full text-xs bg-blue-900/40 text-blue-400 border border-blue-800/40 flex-shrink-0">Completed</span>
+              {% endif %}
+            </div>
+            <div class="flex items-center gap-4 text-xs text-gray-500">
+              <span class="genre-badge text-xs">{{ story.genre }}</span>
+              <span>📖 {{ story.chapters_count }} chapters</span>
+              <span>👁 {{ story.views_count }}</span>
+              <span>❤️ {{ story.likes_count }}</span>
+              <span>{{ story.updated_at|date:"M d, Y" }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{% url 'story_detail' story.id %}"
+               class="text-xs px-3 py-2 rounded-lg border transition-colors"
+               style="border-color:#2a2a2a; color:#888;"
+               onmouseover="this.style.borderColor='#444'; this.style.color='#fff';"
+               onmouseout="this.style.borderColor='#2a2a2a'; this.style.color='#888';">
+              View
+            </a>
+            <a href="{% url 'add_chapter' story.id %}"
+               class="text-xs px-3 py-2 rounded-lg border transition-colors"
+               style="border-color:rgba(201,168,76,0.3); color:#c9a84c;"
+               onmouseover="this.style.background='rgba(201,168,76,0.1)';"
+               onmouseout="this.style.background='transparent';">
+              + Chapter
+            </a>
+            <a href="{% url 'edit_story' story.id %}"
+               class="text-xs px-3 py-2 rounded-lg border transition-colors"
+               style="border-color:#2a2a2a; color:#888;"
+               onmouseover="this.style.borderColor='#444'; this.style.color='#fff';"
+               onmouseout="this.style.borderColor='#2a2a2a'; this.style.color='#888';">
+              Edit
+            </a>
+            <form action="{% url 'delete_story' story.id %}" method="POST"
+                  onsubmit="return confirm('Delete \'{{ story.title }}\'? This cannot be undone.');">
+              {% csrf_token %}
+              <button type="submit"
+                      class="text-xs px-3 py-2 rounded-lg border transition-colors"
+                      style="border-color:#3a1a1a; color:#ef4444;"
+                      onmouseover="this.style.background='rgba(239,68,68,0.1)';"
+                      onmouseout="this.style.background='transparent';">
+                Delete
+              </button>
+            </form>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+    <div class="text-center py-24 border border-dashed rounded-2xl" style="border-color:#222;">
+      <div class="text-6xl mb-4">✍️</div>
+      <h3 class="text-xl font-semibold text-gray-400 mb-2">No stories yet</h3>
+      <p class="text-gray-600 text-sm mb-6">Your stories will appear here once you create them.</p>
+      <a href="{% url 'create_story' %}" class="btn-primary">Write Your First Story</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

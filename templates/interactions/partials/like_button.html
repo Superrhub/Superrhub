@@ -1,0 +1,9 @@
+<button
+  hx-post="{% url 'toggle_like' story_id %}"
+  hx-target="#like-btn"
+  hx-swap="outerHTML"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  class="{% if is_liked %}btn-primary{% else %}btn-secondary{% endif %} text-sm px-4 py-2 cursor-pointer">
+  {% if is_liked %}❤️{% else %}🤍{% endif %}
+  {{ story.likes_count }} Like{{ story.likes_count|pluralize }}
+</button>

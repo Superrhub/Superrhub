@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — SuperHub{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <div class="mb-8">
+    <a href="{% url 'profile' current_user.username %}"
+       class="text-gold-500 hover:text-gold-300 text-sm mb-3 inline-block">
+      &larr; Back to Profile
+    </a>
+    <h1 class="text-3xl font-bold text-white font-serif">Edit Profile</h1>
+  </div>
+
+  <div class="rounded-2xl border p-8" style="background:#111; border-color:#222;">
+    <form method="POST" action="{% url 'edit_profile' current_user.username %}" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Avatar preview -->
+      <div class="flex items-center gap-4">
+        {% if current_user.avatar %}
+          <img src="{{ current_user.avatar }}" alt="avatar"
+               class="w-16 h-16 rounded-full object-cover border"
+               style="border-color:rgba(201,168,76,0.4);" />
+        {% else %}
+          <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold"
+               style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+            {{ current_user.username|first|upper }}
+          </div>
+        {% endif %}
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">Avatar URL</label>
+          <input type="url" name="avatar" value="{{ current_user.avatar }}"
+                 placeholder="https://example.com/your-photo.jpg"
+                 class="form-input" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-400 mb-1.5">Bio</label>
+        <textarea name="bio" rows="4" maxlength="500"
+                  placeholder="Tell readers about yourself..."
+                  class="form-input">{{ current_user.bio }}</textarea>
+        <p class="text-gray-600 text-xs mt-1">Max 500 characters.</p>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-primary px-8 py-3">Save Changes</button>
+        <a href="{% url 'profile' current_user.username %}" class="btn-secondary px-6 py-3">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

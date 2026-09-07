@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Join SuperHub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16"
+     style="background: radial-gradient(ellipse at center, #120d00 0%, #0a0a0a 70%);">
+
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <a href="{% url 'home' %}" class="inline-flex items-center gap-2 mb-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center font-serif font-bold text-dark-600 text-xl"
+             style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
+      </a>
+      <h1 class="text-2xl font-bold text-white font-serif">Join SuperHub</h1>
+      <p class="text-gray-500 text-sm mt-1">Start reading and writing today — it's free</p>
+    </div>
+
+    <!-- Card -->
+    <div class="rounded-2xl border p-8" style="background:#111; border-color:#222;">
+
+      {% if form.non_field_errors %}
+        <div class="msg-error px-4 py-3 rounded-lg mb-5 text-sm">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'register' %}" class="space-y-5">
+        {% csrf_token %}
+
+        <!-- Username -->
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <p class="text-red-400 text-xs mt-1">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <p class="text-red-400 text-xs mt-1">{{ form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">Password</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <p class="text-red-400 text-xs mt-1">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Confirm Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">Confirm Password</label>
+          {{ form.confirm_password }}
+          {% if form.confirm_password.errors %}
+            <p class="text-red-400 text-xs mt-1">{{ form.confirm_password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-1.5">
+            Bio <span class="text-gray-600 font-normal">(optional)</span>
+          </label>
+          {{ form.bio }}
+        </div>
+
+        <button type="submit" class="btn-primary w-full justify-center py-3 text-base mt-2">
+          Create Account
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-500 mt-6">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-gold-500 hover:text-gold-300 font-medium transition-colors">
+          Log in
+        </a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
