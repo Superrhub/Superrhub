@@ -73,6 +73,18 @@
           {% endif %}
         </div>
 
+        <!-- Navbar Search -->
+        <form action="{% url 'browse' %}" method="GET" class="hidden md:flex items-center gap-2">
+          <input type="text" name="search" placeholder="Search stories..."
+                 class="bg-dark-100 border border-dark-50 rounded-lg px-3 py-1.5 text-sm text-gray-300 placeholder-gray-600 focus:outline-none focus:border-gold-500 w-48"
+                 value="{{ request.GET.search|default:'' }}" />
+          <button type="submit" class="text-gray-400 hover:text-gold-500 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+          </button>
+        </form>
+
         <!-- Desktop Auth -->
         <div class="hidden md:flex items-center gap-3">
           {% if current_user %}
@@ -102,6 +114,14 @@
                   <a href="{% url 'my_stories' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     📚 My Stories
+                  </a>
+                  <a href="{% url 'dashboard' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    📊 Dashboard
+                  </a>
+                  <a href="{% url 'dashboard' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    📊 Dashboard
                   </a>
                   <a href="{% url 'reading_list' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
@@ -137,6 +157,7 @@
           {% if current_user %}
             <a href="{% url 'my_stories' %}" class="nav-link px-2 py-2">My Stories</a>
             <a href="{% url 'reading_list' %}" class="nav-link px-2 py-2">Reading List</a>
+            <a href="{% url 'dashboard' %}" class="nav-link px-2 py-2">📊 Dashboard</a>
             <a href="{% url 'profile' current_user.username %}" class="nav-link px-2 py-2">My Profile</a>
             <a href="{% url 'create_story' %}" class="btn-primary mt-2 justify-center">✏️ Write a Story</a>
             <a href="{% url 'logout' %}" class="text-red-400 text-sm px-2 py-2 hover:text-red-300">Logout</a>

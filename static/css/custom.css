@@ -203,3 +203,21 @@ select.form-input option { background: #1a1a1a; }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ---- Night reader mode ---- */
+.night-reader {
+  background: #0d0d0d !important;
+  color: #d4c5a9 !important;
+}
+.night-reader .reader-content {
+  color: #d4c5a9 !important;
+  background: #0d0d0d !important;
+}
+.night-reader .reader-body {
+  background: #0d0d0d !important;
+  color: #d4c5a9 !important;
+}
+.night-reader .reader-top-bar {
+  background: #111 !important;
+  border-bottom-color: #222 !important;
+}

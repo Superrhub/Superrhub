@@ -15,26 +15,26 @@
   </div>
 
   <!-- Search + Filter -->
-  <div class="flex flex-col sm:flex-row gap-4 mb-8">
-    <!-- Search -->
+  <div class="flex flex-col sm:flex-row gap-4 mb-6">
     <form method="GET" action="{% url 'browse' %}" class="flex-1 flex gap-2">
       {% if current_genre %}
         <input type="hidden" name="genre" value="{{ current_genre }}" />
       {% endif %}
-      <input
-        type="text"
-        name="search"
-        value="{{ search }}"
-        placeholder="Search stories by title..."
-        class="form-input flex-1"
-        style="max-width: 400px;"
-      />
-      <button type="submit" class="btn-primary px-4 py-2">🔍</button>
+      <div class="relative flex-1" style="max-width:500px;">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+        <input
+          type="text"
+          name="search"
+          value="{{ search }}"
+          placeholder="Search by title, author, tag..."
+          class="form-input pl-9 w-full"
+          autocomplete="off"
+        />
+      </div>
+      <button type="submit" class="btn-primary px-5 py-2">Search</button>
     </form>
-
-    <!-- Clear filters -->
     {% if search or current_genre %}
-      <a href="{% url 'browse' %}" class="btn-secondary text-sm">✕ Clear filters</a>
+      <a href="{% url 'browse' %}" class="btn-secondary text-sm">✕ Clear</a>
     {% endif %}
   </div>
 
@@ -42,13 +42,13 @@
   <div class="flex flex-wrap gap-2 mb-8">
     <a href="{% url 'browse' %}{% if search %}?search={{ search }}{% endif %}"
        class="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
-       style="{% if not current_genre %}background:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.5); color:#c9a84c;{% else %}background:#111; border-color:#222; color:#666;{% endif %}">
+       style="{% if not current_genre %}background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.5);color:#c9a84c;{% else %}background:#111;border-color:#222;color:#666;{% endif %}">
       All
     </a>
     {% for genre in genres %}
       <a href="{% url 'browse' %}?genre={{ genre }}{% if search %}&search={{ search }}{% endif %}"
          class="px-4 py-1.5 rounded-full text-sm font-medium border transition-all"
-         style="{% if current_genre == genre %}background:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.5); color:#c9a84c;{% else %}background:#111; border-color:#222; color:#666;{% endif %}">
+         style="{% if current_genre == genre %}background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.5);color:#c9a84c;{% else %}background:#111;border-color:#222;color:#666;{% endif %}">
         {{ genre }}
       </a>
     {% endfor %}
@@ -61,26 +61,17 @@
         {% include 'partials/story_card.html' with story=story %}
       {% endfor %}
     </div>
-
     <!-- Pagination -->
     <div class="flex items-center justify-center gap-4">
       {% if has_prev %}
-        <a href="?page={{ page|add:'-1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
-           class="btn-secondary text-sm px-5 py-2">
-          &larr; Previous
-        </a>
+        <a href="?page={{ page|add:'-1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn-secondary text-sm px-5 py-2">&larr; Previous</a>
       {% endif %}
       <span class="text-gray-500 text-sm">Page {{ page }}</span>
       {% if has_next %}
-        <a href="?page={{ page|add:'1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
-           class="btn-secondary text-sm px-5 py-2">
-          Next &rarr;
-        </a>
+        <a href="?page={{ page|add:'1' }}{% if current_genre %}&genre={{ current_genre }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn-secondary text-sm px-5 py-2">Next &rarr;</a>
       {% endif %}
     </div>
-
   {% else %}
-    <!-- Empty state -->
     <div class="text-center py-24 text-gray-600">
       <div class="text-6xl mb-5">📭</div>
       <h3 class="text-xl font-semibold text-gray-400 mb-2">No stories found</h3>

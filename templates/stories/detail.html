@@ -91,6 +91,12 @@
         ✏️ Edit
       </a>
     {% endif %}
+
+    <!-- Share Button -->
+    <button onclick="shareStory('{{ story.id }}', '{{ story.title|escapejs }}')"
+            class="btn-secondary text-sm px-4 py-2">
+      📤 Share
+    </button>
   </div>
 
   <!-- Two column layout -->
@@ -157,4 +163,27 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareStory(storyId, title) {
+  const url = window.location.origin + '/stories/' + storyId + '/';
+  const text = 'Check out "' + title + '" on SuperHub 📖\n' + url;
+  if (/Android|iPhone/i.test(navigator.userAgent)) {
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    return;
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.querySelector('[onclick*="shareStory"]');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    });
+  } else {
+    prompt('Copy this link:', url);
+  }
+}
+</script>
 {% endblock %}

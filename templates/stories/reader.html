@@ -4,118 +4,219 @@
 
 {% block extra_head %}
 <style>
-  body { background: #fdf6e3 !important; color: #1a1008 !important; }
+  .reader-page { background: #fdf6e3; color: #1a1008; }
+  .reader-page.night { background: #1a1a1a; color: #e0d5c0; }
   .reader-top-bar { background: #fff; border-bottom: 1px solid #e8dcc8; }
-  .reader-top-bar a, .reader-top-bar span { color: #555 !important; }
+  .reader-page.night .reader-top-bar { background: #111; border-bottom-color: #2a2a2a; }
+  .reader-page.night .reader-content { color: #e0d5c0; }
   footer { display: none !important; }
+  nav { display: none !important; }
 </style>
 {% endblock %}
 
 {% block content %}
+<div id="reader-page" class="reader-page min-h-screen transition-colors duration-300">
 
-<!-- Top Bar -->
-<div class="reader-top-bar sticky top-0 z-40 px-4 py-3">
-  <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
-    <a href="{% url 'story_detail' story.id %}"
-       class="flex items-center gap-2 text-sm font-medium hover:opacity-70 transition-opacity"
-       style="color:#555;">
-      &larr; {{ story.title }}
-    </a>
-    <span class="text-sm" style="color:#999;">
-      Chapter {{ chapter.chapter_number }} of {{ total_chapters }}
-    </span>
-    <!-- Progress bar -->
-    <div class="hidden sm:flex items-center gap-2 text-xs" style="color:#999;">
-      <div class="w-24 h-1.5 rounded-full" style="background:#e8dcc8;">
-        <div class="h-full rounded-full" style="background:#c9a84c; width: {% widthratio chapter.chapter_number total_chapters 100 %}%;"></div>
+  <!-- Top Bar -->
+  <div class="reader-top-bar sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+
+      <!-- Back -->
+      <a href="{% url 'story_detail' story.id %}"
+         class="flex items-center gap-1 text-sm font-medium opacity-60 hover:opacity-100 transition-opacity">
+        &larr; <span class="hidden sm:inline truncate max-w-xs">{{ story.title }}</span>
+        <span class="sm:hidden">Back</span>
+      </a>
+
+      <!-- Progress -->
+      <div class="flex items-center gap-2 text-xs opacity-50">
+        <div class="w-20 h-1.5 rounded-full" style="background:#e8dcc8;">
+          <div class="h-full rounded-full" style="background:#c9a84c; width:{% widthratio chapter.chapter_number total_chapters 100 %}%;"></div>
+        </div>
+        Ch {{ chapter.chapter_number }}/{{ total_chapters }}
       </div>
-      {% widthratio chapter.chapter_number total_chapters 100 %}%
+
+      <!-- Controls -->
+      <div class="flex items-center gap-2">
+
+        <!-- Font Size -->
+        <button onclick="changeFontSize(-1)" title="Smaller text"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold opacity-50 hover:opacity-100 transition-opacity"
+                style="background:#f0e8d8;">A-</button>
+        <button onclick="changeFontSize(1)" title="Larger text"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold opacity-50 hover:opacity-100 transition-opacity"
+                style="background:#f0e8d8;">A+</button>
+
+        <!-- Night Mode -->
+        <button onclick="toggleNightMode()" id="night-btn" title="Night mode"
+                class="w-8 h-8 rounded-lg flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
+                style="background:#f0e8d8;">🌙</button>
+
+        <!-- Share -->
+        <button onclick="shareStory()" title="Share"
+                class="w-8 h-8 rounded-lg flex items-center justify-center opacity-50 hover:opacity-100 transition-opacity"
+                style="background:#f0e8d8;">📤</button>
+      </div>
     </div>
+  </div>
+
+  <!-- Reader Content -->
+  <div class="max-w-2xl mx-auto px-4 sm:px-8 py-12">
+
+    <!-- Chapter Header -->
+    <div class="mb-10 text-center">
+      <p class="text-sm font-medium mb-2" style="color:#c9a84c;">Chapter {{ chapter.chapter_number }}</p>
+      <h1 id="chapter-title" class="text-3xl sm:text-4xl font-bold font-serif mb-3">{{ chapter.title }}</h1>
+      <div class="w-16 h-0.5 mx-auto rounded" style="background:#c9a84c;"></div>
+    </div>
+
+    <!-- Content -->
+    <div id="reader-content" class="reader-content font-serif leading-relaxed" style="font-size:1.125rem;">
+      {{ chapter.content|linebreak_tag }}
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex items-center justify-between mt-16 pt-8" style="border-top:1px solid #e8dcc8;">
+      {% if prev_num %}
+        <a href="{% url 'reader' story.id prev_num %}" class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm transition-all"
+           style="background:#fff; border:1px solid #e8dcc8; color:#555;"
+           onmouseover="this.style.borderColor='#c9a84c';" onmouseout="this.style.borderColor='#e8dcc8';">
+          &larr; Previous
+        </a>
+      {% else %}
+        <a href="{% url 'story_detail' story.id %}" class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
+           style="background:#fff; border:1px solid #e8dcc8; color:#555;">
+          &larr; Story
+        </a>
+      {% endif %}
+
+      <a href="{% url 'story_detail' story.id %}" class="text-sm font-medium px-4 py-2 rounded-lg" style="color:#c9a84c;">
+        Contents
+      </a>
+
+      {% if next_num %}
+        <a href="{% url 'reader' story.id next_num %}" class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
+           style="background:linear-gradient(135deg,#c9a84c,#a07030); color:#fff;">
+          Next &rarr;
+        </a>
+      {% else %}
+        <div class="text-center px-6 py-3">
+          <span class="text-sm font-medium" style="color:#c9a84c;">🎉 The End</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if not next_num %}
+      <div class="mt-10 text-center p-8 rounded-2xl border" style="background:#fff8ee; border-color:#e8dcc8;">
+        <div class="text-3xl mb-3">📖</div>
+        <h3 class="text-xl font-bold font-serif mb-2">You've finished this story!</h3>
+        <p class="text-sm mb-5 opacity-60">Thank you for reading {{ story.title }}</p>
+        <!-- Share after finishing -->
+        <button onclick="shareStory()"
+                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm mr-3 mb-3"
+                style="background:#25D366; color:#fff;">
+          📤 Share on WhatsApp
+        </button>
+        <a href="{% url 'browse' %}"
+           class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm mb-3"
+           style="background:linear-gradient(135deg,#c9a84c,#a07030); color:#0a0a0a;">
+          Discover More
+        </a>
+      </div>
+    {% endif %}
+
   </div>
 </div>
 
-<!-- Reader Content -->
-<div class="max-w-2xl mx-auto px-4 sm:px-8 py-12">
-
-  <!-- Chapter Header -->
-  <div class="mb-10 text-center">
-    <p class="text-sm font-medium mb-2" style="color:#c9a84c;">
-      Chapter {{ chapter.chapter_number }}
-    </p>
-    <h1 class="text-3xl sm:text-4xl font-bold font-serif mb-3" style="color:#1a0a00;">
-      {{ chapter.title }}
-    </h1>
-    <div class="w-16 h-0.5 mx-auto rounded" style="background:#c9a84c;"></div>
-  </div>
-
-  <!-- Chapter Content -->
-  <div class="reader-content reader-body">
-    {{ chapter.content|linebreak_tag }}
-  </div>
-
-  <!-- Navigation -->
-  <div class="flex items-center justify-between mt-16 pt-8 border-t" style="border-color:#e8dcc8;">
-    {% if prev_num %}
-      <a href="{% url 'reader' story.id prev_num %}"
-         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all text-sm"
-         style="background:#fff; border:1px solid #e8dcc8; color:#555;"
-         onmouseover="this.style.borderColor='#c9a84c'; this.style.color='#a07030';"
-         onmouseout="this.style.borderColor='#e8dcc8'; this.style.color='#555';">
-        &larr; Previous Chapter
-      </a>
-    {% else %}
-      <a href="{% url 'story_detail' story.id %}"
-         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm"
-         style="background:#fff; border:1px solid #e8dcc8; color:#555;">
-        &larr; Back to Story
-      </a>
-    {% endif %}
-
-    <a href="{% url 'story_detail' story.id %}"
-       class="text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-       style="color:#c9a84c;"
-       onmouseover="this.style.background='rgba(201,168,76,0.1)';"
-       onmouseout="this.style.background='transparent';">
-      Contents
-    </a>
-
-    {% if next_num %}
-      <a href="{% url 'reader' story.id next_num %}"
-         class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all text-sm"
-         style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#fff;"
-         onmouseover="this.style.opacity='0.9';"
-         onmouseout="this.style.opacity='1';">
-        Next Chapter &rarr;
-      </a>
-    {% else %}
-      <div class="text-center px-6 py-3">
-        <span class="text-sm font-medium" style="color:#c9a84c;">🎉 The End</span>
-      </div>
-    {% endif %}
-  </div>
-
-  <!-- Story complete message -->
-  {% if not next_num %}
-    <div class="mt-10 text-center p-8 rounded-2xl border" style="background:#fff8ee; border-color:#e8dcc8;">
-      <div class="text-3xl mb-3">📖</div>
-      <h3 class="text-xl font-bold font-serif mb-2" style="color:#1a0a00;">You've finished this story!</h3>
-      <p class="text-sm mb-5" style="color:#888;">Thank you for reading {{ story.title }}</p>
-      <a href="{% url 'browse' %}"
-         class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
-         style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
-        Discover More Stories
-      </a>
-    </div>
-  {% endif %}
-
+<!-- Share Toast -->
+<div id="share-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50"
+     style="background:#c9a84c; color:#0a0a0a;">
+  Link copied! Share with friends 🎉
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Override navbar styles for reader
-  document.querySelector('nav').style.background = '#fff';
-  document.querySelector('nav').style.borderBottomColor = '#e8dcc8';
+  // Font size
+  let fontSize = parseFloat(localStorage.getItem('readerFontSize') || '1.125');
+  applyFontSize();
+
+  function changeFontSize(delta) {
+    fontSize = Math.min(1.6, Math.max(0.85, fontSize + delta * 0.1));
+    localStorage.setItem('readerFontSize', fontSize);
+    applyFontSize();
+  }
+
+  function applyFontSize() {
+    document.getElementById('reader-content').style.fontSize = fontSize + 'rem';
+  }
+
+  // Night mode
+  let nightMode = localStorage.getItem('nightMode') === 'true';
+  applyNightMode();
+
+  function toggleNightMode() {
+    nightMode = !nightMode;
+    localStorage.setItem('nightMode', nightMode);
+    applyNightMode();
+  }
+
+  function applyNightMode() {
+    const page = document.getElementById('reader-page');
+    const btn = document.getElementById('night-btn');
+    const bars = document.querySelectorAll('.reader-top-bar');
+    const nav = document.querySelectorAll('.flex.items-center.justify-between.mt-16 a');
+
+    if (nightMode) {
+      page.classList.add('night');
+      document.body.style.background = '#1a1a1a';
+      btn.textContent = '☀️';
+      bars.forEach(b => { b.style.background = '#111'; b.style.borderColor = '#2a2a2a'; });
+    } else {
+      page.classList.remove('night');
+      document.body.style.background = '#fdf6e3';
+      btn.textContent = '🌙';
+      bars.forEach(b => { b.style.background = '#fff'; b.style.borderColor = '#e8dcc8'; });
+    }
+  }
+
+  // Share
+  function shareStory() {
+    const url = window.location.origin + '/stories/{{ story.id }}/';
+    const text = 'Reading "{{ story.title }}" on SuperHub 📖\n' + url;
+
+    // Try WhatsApp first on mobile
+    if (/Android|iPhone/i.test(navigator.userAgent)) {
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+      return;
+    }
+
+    // Copy to clipboard on desktop
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => showToast());
+    } else {
+      const el = document.createElement('textarea');
+      el.value = url;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast();
+    }
+  }
+
+  function showToast() {
+    const toast = document.getElementById('share-toast');
+    toast.style.opacity = '1';
+    setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+  }
+
+  // Apply night mode background to body
+  if (nightMode) {
+    document.body.style.background = '#1a1a1a';
+  } else {
+    document.body.style.background = '#fdf6e3';
+  }
 </script>
 {% endblock %}

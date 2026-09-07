@@ -6,6 +6,7 @@ urlpatterns = [
     path('browse/', views.browse_view, name='browse'),
     path('stories/create/', views.create_story_view, name='create_story'),
     path('stories/mine/', views.my_stories_view, name='my_stories'),
+    path('stories/dashboard/', views.dashboard_view, name='dashboard'),
     path('stories/<str:story_id>/', views.story_detail_view, name='story_detail'),
     path('stories/<str:story_id>/edit/', views.edit_story_view, name='edit_story'),
     path('stories/<str:story_id>/delete/', views.delete_story_view, name='delete_story'),

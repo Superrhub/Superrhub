@@ -30,7 +30,13 @@ def browse_view(request):
     if genre and genre in GENRES:
         stories = stories.filter(genre=genre)
     if search:
-        stories = stories.filter(title__icontains=search)
+        # Search title, author, tags
+        from mongoengine.queryset.visitor import Q
+        stories = stories.filter(
+            Q(title__icontains=search) |
+            Q(author_username__icontains=search) |
+            Q(tags__icontains=search)
+        )
     stories = stories.order_by('-created_at')
 
     total = stories.count()
@@ -63,7 +69,6 @@ def story_detail_view(request, story_id):
         messages.error(request, 'Story not found.')
         return redirect('home')
 
-    # Increment views
     Story.objects(id=story_id).update_one(inc__views_count=1)
     story.reload()
 
@@ -78,9 +83,7 @@ def story_detail_view(request, story_id):
             user_id=str(current_user.id), story_id=story_id
         ).first() is not None
 
-    comments = list(
-        Comment.objects(story_id=story_id).order_by('created_at')
-    )
+    comments = list(Comment.objects(story_id=story_id).order_by('created_at'))
     is_author = current_user and story.author_id == str(current_user.id)
 
     return render(request, 'stories/detail.html', {
@@ -244,6 +247,46 @@ def my_stories_view(request):
     )
     return render(request, 'stories/my_stories.html', {
         'stories': stories,
+        'current_user': current_user,
+    })
+
+
+@login_required_mongo
+def dashboard_view(request):
+    current_user = get_current_user(request)
+    from apps.interactions.models import Comment
+    stories = list(Story.objects(author_id=str(current_user.id)).order_by('-views_count'))
+
+    story_data = []
+    total_views = 0
+    total_likes = 0
+    total_comments = 0
+    max_views = 1
+    max_likes = 1
+    max_comments = 1
+
+    for story in stories:
+        comment_count = Comment.objects(story_id=str(story.id)).count()
+        story_data.append({'story': story, 'comments': comment_count})
+        total_views += story.views_count
+        total_likes += story.likes_count
+        total_comments += comment_count
+        if story.views_count > max_views:
+            max_views = story.views_count
+        if story.likes_count > max_likes:
+            max_likes = story.likes_count
+        if comment_count > max_comments:
+            max_comments = comment_count
+
+    return render(request, 'stories/dashboard.html', {
+        'stories': story_data,
+        'total_stories': len(stories),
+        'total_views': total_views,
+        'total_likes': total_likes,
+        'total_comments': total_comments,
+        'max_views': max_views,
+        'max_likes': max_likes,
+        'max_comments': max_comments,
         'current_user': current_user,
     })
 
