@@ -218,5 +218,43 @@
   } else {
     document.body.style.background = '#fdf6e3';
   }
+
+  // Swipe gestures for mobile
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) < 80) return; // minimum swipe distance
+    if (diff > 0) {
+      // Swipe left — next chapter
+      {% if next_num %}
+        window.location.href = "{% url 'reader' story.id next_num %}";
+      {% endif %}
+    } else {
+      // Swipe right — previous chapter
+      {% if prev_num %}
+        window.location.href = "{% url 'reader' story.id prev_num %}";
+      {% endif %}
+    }
+  }
+
+  // Show swipe hint on first read (mobile)
+  if (window.innerWidth < 768 && !localStorage.getItem('swipeHintShown')) {
+    const hint = document.createElement('div');
+    hint.className = 'reader-swipe-hint';
+    hint.textContent = '← Swipe to change chapter →';
+    document.body.appendChild(hint);
+    localStorage.setItem('swipeHintShown', '1');
+  }
 </script>
 {% endblock %}

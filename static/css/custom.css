@@ -221,3 +221,79 @@ select.form-input option { background: #1a1a1a; }
   background: #111 !important;
   border-bottom-color: #222 !important;
 }
+
+/* ===========================
+   Mobile Improvements
+=========================== */
+
+/* Better touch targets */
+@media (max-width: 768px) {
+  .btn-primary, .btn-secondary {
+    min-height: 44px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .form-input {
+    min-height: 48px;
+    font-size: 16px; /* prevents iOS zoom on input focus */
+  }
+
+  /* Story cards on mobile — 2 per row, tighter */
+  .story-card {
+    border-radius: 0.5rem;
+  }
+
+  /* Reader full screen on mobile */
+  .reader-body {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  /* Navbar logo smaller on mobile */
+  .nav-logo-text { font-size: 1.1rem; }
+
+  /* Section headings smaller */
+  h1.text-5xl { font-size: 2.5rem; }
+  h1.text-6xl { font-size: 2.5rem; }
+  h1.text-7xl { font-size: 2.5rem; }
+
+  /* Genre pills scroll horizontally on mobile */
+  .genre-pills-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .genre-pills-row::-webkit-scrollbar { display: none; }
+  .genre-pills-row a { flex-shrink: 0; }
+
+  /* Bottom nav safe area */
+  .bottom-nav-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+}
+
+/* Swipe hint for reader */
+.reader-swipe-hint {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(201,168,76,0.15);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: #c9a84c;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeHint 3s ease forwards;
+}
+@keyframes fadeHint {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
