@@ -26,28 +26,31 @@
 
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
            style="background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);">
-        <span class="text-gold-500 text-lg font-bold">₦{{ story.price }}</span>
-        <span class="text-gray-500 text-sm">— Lifetime Access</span>
+        <span class="text-gold-500 text-lg font-bold">₦{{ story.price|floatformat:"0" }}</span>
+        <span class="text-gray-500 text-sm">— Complete Book Access</span>
       </div>
 
       <div class="text-left space-y-2 mb-6">
         <div class="flex items-center gap-2 text-sm text-gray-400">
-          <span class="text-green-400">✓</span> All {{ story.chapters_count }} chapters unlocked
+          <span class="text-green-400">✓</span> All {{ story.chapters_count }} chapters unlocked forever
         </div>
         <div class="flex items-center gap-2 text-sm text-gray-400">
-          <span class="text-green-400">✓</span> Read anytime, forever
+          <span class="text-green-400">✓</span> Read anytime, on any device
         </div>
         <div class="flex items-center gap-2 text-sm text-gray-400">
           <span class="text-green-400">✓</span> Secure payment via Paystack
         </div>
         <div class="flex items-center gap-2 text-sm text-gray-400">
-          <span class="text-green-400">✓</span> First {{ story.free_chapters }} chapters already free
+          <span class="text-green-400">✓</span> One-time payment — no subscription
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span class="text-gold-500">📖</span> First {{ story.free_chapters }} chapters already free
         </div>
       </div>
 
       <!-- Pay button -->
       <button onclick="payWithPaystack()" class="btn-primary w-full justify-center py-3 text-base">
-        🔓 Unlock Full Story — ₦{{ story.price }}
+        🔓 Get Complete Access — ₦{{ story.price|floatformat:"0" }}
       </button>
 
       <p class="text-xs text-gray-600 mt-3">
@@ -68,7 +71,7 @@ function payWithPaystack() {
   const handler = PaystackPop.setup({
     key: '{{ paystack_public_key }}',
     email: '{{ current_user.email }}',
-    amount: {{ amount_kobo }},
+    amount: {{ amount_kobo }},  // ₦2,500 = 250,000 kobo
     currency: 'NGN',
     ref: 'SH_' + new Date().getTime() + '_{{ story.id|slice:"8" }}',
     metadata: {
