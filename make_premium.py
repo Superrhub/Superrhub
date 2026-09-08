@@ -7,11 +7,12 @@ from apps.stories.models import Story
 
 s = Story.objects(title__icontains='Jannah').first()
 s.is_premium = True
-s.price = 500
+s.price = 1000
 s.free_chapters = 3
 s.save()
 
-print('My Jannah is now PREMIUM')
-print('Price: N500')
-print('Free chapters: 3')
-print('Chapters 4-30 locked until payment')
+print('Updated!')
+print(f'Title: {s.title}')
+print(f'Price: N{s.price}')
+print(f'Free chapters: {s.free_chapters}')
+print('Chapters 4-30 require N1000 payment')
