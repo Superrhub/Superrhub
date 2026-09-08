@@ -1,0 +1,27 @@
+{
+  "name": "SuperHub",
+  "short_name": "SuperHub",
+  "description": "Where Stories Live — Read and publish stories by Mubarak Ahmad Alibaba",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c9a84c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/jannah.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/jannah.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["books", "entertainment", "education"],
+  "lang": "en",
+  "scope": "/"
+}

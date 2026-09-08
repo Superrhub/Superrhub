@@ -6,6 +6,14 @@
   <title>{% block title %}SuperHub — Where Stories Live{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Discover and publish stories on SuperHub.{% endblock %}" />
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#c9a84c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SuperHub" />
+  <link rel="apple-touch-icon" href="/static/images/jannah.jpg" />
+
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -214,6 +222,31 @@
     {% block content %}{% endblock %}
   </main>
 
+  <!-- PWA Install Banner -->
+  <div id="pwa-install-banner"
+       class="hidden fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50 rounded-2xl border p-4 shadow-2xl"
+       style="background:#111; border-color:rgba(201,168,76,0.4);">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-gray-900 text-lg flex-shrink-0"
+           style="background:linear-gradient(135deg,#f0d070,#c9a84c);">S</div>
+      <div>
+        <p class="text-white font-semibold text-sm">Install SuperHub</p>
+        <p class="text-gray-500 text-xs">Get the app on your device</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button id="pwa-install-btn"
+              class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-900"
+              style="background:linear-gradient(135deg,#f0d070,#c9a84c);">
+        Install App
+      </button>
+      <button id="pwa-dismiss-btn"
+              class="px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-300 border border-gray-700">
+        ✕
+      </button>
+    </div>
+  </div>
+
   <!-- ===== FOOTER ===== -->
   <footer class="border-t border-dark-50 mt-16" style="background:#0d0d0d;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -354,5 +387,49 @@
   </script>
 
   {% block extra_js %}{% endblock %}
+
+  <!-- PWA Service Worker + Install Prompt -->
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(() => console.log('SuperHub SW registered'))
+          .catch(() => {});
+      });
+    }
+
+    // Install prompt
+    let deferredPrompt;
+    const installBanner = document.getElementById('pwa-install-banner');
+    const installBtn = document.getElementById('pwa-install-btn');
+    const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBanner && !localStorage.getItem('pwaDismissed')) {
+        installBanner.classList.remove('hidden');
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const result = await deferredPrompt.userChoice;
+          deferredPrompt = null;
+        }
+        if (installBanner) installBanner.classList.add('hidden');
+      });
+    }
+
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        if (installBanner) installBanner.classList.add('hidden');
+        localStorage.setItem('pwaDismissed', '1');
+      });
+    }
+  </script>
 </body>
 </html>
