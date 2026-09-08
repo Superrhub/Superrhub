@@ -72,9 +72,10 @@ def story_detail_view(request, story_id):
     Story.objects(id=story_id).update_one(inc__views_count=1)
     story.reload()
 
-    from apps.interactions.models import Like, Comment, ReadingList
+    from apps.interactions.models import Like, Comment, ReadingList, Purchase
     is_liked = False
     in_reading_list = False
+    is_purchased = False
     if current_user:
         is_liked = Like.objects(
             user_id=str(current_user.id), story_id=story_id
@@ -82,6 +83,12 @@ def story_detail_view(request, story_id):
         in_reading_list = ReadingList.objects(
             user_id=str(current_user.id), story_id=story_id
         ).first() is not None
+        is_purchased = Purchase.objects(
+            user_id=str(current_user.id), story_id=story_id, verified=True
+        ).first() is not None
+        # Author always has access
+        if story.author_id == str(current_user.id):
+            is_purchased = True
 
     comments = list(Comment.objects(story_id=story_id).order_by('created_at'))
     is_author = current_user and story.author_id == str(current_user.id)
@@ -91,6 +98,7 @@ def story_detail_view(request, story_id):
         'current_user': current_user,
         'is_liked': is_liked,
         'in_reading_list': in_reading_list,
+        'is_purchased': is_purchased,
         'comments': comments,
         'is_author': is_author,
     })
@@ -116,6 +124,12 @@ def reader_view(request, story_id, chapter_number):
     if not chapter:
         messages.error(request, 'Chapter not found.')
         return redirect('story_detail', story_id=story_id)
+
+    # Premium paywall check
+    if story.is_premium and chapter_number > story.free_chapters:
+        from apps.interactions.views import has_access
+        if not has_access(current_user, story):
+            return redirect('initiate_payment', story_id=story_id)
 
     total_chapters = len(story.chapters)
     prev_num = chapter_number - 1 if chapter_number > 1 else None

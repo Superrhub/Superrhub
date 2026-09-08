@@ -31,6 +31,9 @@ class Story(Document):
     chapters = ListField(EmbeddedDocumentField(Chapter))
     is_published = BooleanField(default=False)
     is_completed = BooleanField(default=False)
+    is_premium = BooleanField(default=False)      # requires payment
+    price = IntField(default=500)                  # price in NGN
+    free_chapters = IntField(default=3)            # chapters free before paywall
     views_count = IntField(default=0)
     likes_count = IntField(default=0)
     created_at = DateTimeField(default=datetime.utcnow)

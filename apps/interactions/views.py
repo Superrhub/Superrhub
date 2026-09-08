@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.contrib import messages
+import json, urllib.request, urllib.error
 
-from .models import Like, Comment, ReadingList
+from .models import Like, Comment, ReadingList, Purchase
 from apps.stories.models import Story
 from apps.users.views import get_current_user
 
@@ -131,3 +132,91 @@ def reading_list_view(request):
         'items': items,
         'current_user': current_user,
     })
+
+def initiate_payment(request, story_id):
+    """Initiate Paystack payment for premium story."""
+    current_user = get_current_user(request)
+    if not current_user:
+        messages.error(request, 'Please log in to purchase.')
+        return redirect('login')
+
+    story = Story.objects(id=story_id).first()
+    if not story:
+        return redirect('home')
+
+    # Already purchased
+    existing = Purchase.objects(
+        user_id=str(current_user.id), story_id=story_id, verified=True
+    ).first()
+    if existing:
+        messages.info(request, 'You already have access to this story.')
+        return redirect('story_detail', story_id=story_id)
+
+    import os
+    PAYSTACK_SECRET = os.getenv('PAYSTACK_SECRET_KEY', '')
+    PAYSTACK_PUBLIC = os.getenv('PAYSTACK_PUBLIC_KEY', '')
+
+    return render(request, 'interactions/payment.html', {
+        'story': story,
+        'current_user': current_user,
+        'paystack_public_key': PAYSTACK_PUBLIC,
+        'amount_kobo': story.price * 100,  # Paystack uses kobo
+    })
+
+
+def verify_payment(request, story_id):
+    """Verify Paystack payment and grant access."""
+    current_user = get_current_user(request)
+    if not current_user:
+        return redirect('login')
+
+    reference = request.GET.get('reference', '')
+    if not reference:
+        messages.error(request, 'Payment reference missing.')
+        return redirect('story_detail', story_id=story_id)
+
+    import os
+    PAYSTACK_SECRET = os.getenv('PAYSTACK_SECRET_KEY', '')
+
+    # Verify with Paystack API
+    try:
+        url = f'https://api.paystack.co/transaction/verify/{reference}'
+        req = urllib.request.Request(url)
+        req.add_header('Authorization', f'Bearer {PAYSTACK_SECRET}')
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode())
+
+        if data.get('data', {}).get('status') == 'success':
+            story = Story.objects(id=story_id).first()
+            # Save purchase
+            Purchase(
+                user_id=str(current_user.id),
+                story_id=story_id,
+                amount=story.price if story else 0,
+                reference=reference,
+                verified=True,
+            ).save()
+            messages.success(request, f'Payment successful! You now have full access to "{story.title}".')
+            return redirect('story_detail', story_id=story_id)
+        else:
+            messages.error(request, 'Payment could not be verified. Please contact support.')
+            return redirect('story_detail', story_id=story_id)
+
+    except Exception as e:
+        messages.error(request, 'Payment verification failed. Please contact support.')
+        return redirect('story_detail', story_id=story_id)
+
+
+def has_access(user, story):
+    """Check if user has access to a premium story."""
+    if not story.is_premium:
+        return True
+    if not user:
+        return False
+    # Author always has access
+    if story.author_id == str(user.id):
+        return True
+    # Check purchase
+    return Purchase.objects(
+        user_id=str(user.id), story_id=str(story.id), verified=True
+    ).first() is not None

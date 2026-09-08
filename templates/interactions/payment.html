@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Unlock {{ story.title }} — SuperHub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16"
+     style="background: radial-gradient(ellipse at center, #120d00 0%, #0a0a0a 70%);">
+
+  <div class="w-full max-w-md">
+
+    <!-- Story info -->
+    <div class="rounded-2xl border p-8 mb-6 text-center" style="background:#111; border-color:#222;">
+
+      <!-- Cover -->
+      <div class="w-24 h-32 mx-auto rounded-xl overflow-hidden border mb-4" style="border-color:rgba(201,168,76,0.3);">
+        {% if story.cover_image %}
+          <img src="{{ story.cover_image }}" alt="{{ story.title }}" class="w-full h-full object-cover" />
+        {% else %}
+          <div class="w-full h-full bg-gradient-to-br {{ story.cover_color }} flex items-center justify-center">
+            <span class="text-3xl font-serif font-bold text-white/40">{{ story.title|first|upper }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <h1 class="text-xl font-bold text-white font-serif mb-1">{{ story.title }}</h1>
+      <p class="text-gray-500 text-sm mb-4">by {{ story.author_username }}</p>
+
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
+           style="background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);">
+        <span class="text-gold-500 text-lg font-bold">₦{{ story.price }}</span>
+        <span class="text-gray-500 text-sm">— Lifetime Access</span>
+      </div>
+
+      <div class="text-left space-y-2 mb-6">
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span class="text-green-400">✓</span> All {{ story.chapters_count }} chapters unlocked
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span class="text-green-400">✓</span> Read anytime, forever
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span class="text-green-400">✓</span> Secure payment via Paystack
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span class="text-green-400">✓</span> First {{ story.free_chapters }} chapters already free
+        </div>
+      </div>
+
+      <!-- Pay button -->
+      <button onclick="payWithPaystack()" class="btn-primary w-full justify-center py-3 text-base">
+        🔓 Unlock Full Story — ₦{{ story.price }}
+      </button>
+
+      <p class="text-xs text-gray-600 mt-3">
+        Secured by Paystack. Cards, Bank Transfer & USSD accepted.
+      </p>
+    </div>
+
+    <a href="{% url 'story_detail' story.id %}" class="block text-center text-sm text-gray-600 hover:text-gray-400">
+      &larr; Back to story
+    </a>
+
+  </div>
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+function payWithPaystack() {
+  const handler = PaystackPop.setup({
+    key: '{{ paystack_public_key }}',
+    email: '{{ current_user.email }}',
+    amount: {{ amount_kobo }},
+    currency: 'NGN',
+    ref: 'SH_' + new Date().getTime() + '_{{ story.id|slice:"8" }}',
+    metadata: {
+      story_id: '{{ story.id }}',
+      user_id: '{{ current_user.id }}',
+      story_title: '{{ story.title|escapejs }}',
+    },
+    callback: function(response) {
+      // Redirect to verify payment
+      window.location.href = '/interactions/verify/{{ story.id }}/?reference=' + response.reference;
+    },
+    onClose: function() {
+      // User closed payment modal
+    }
+  });
+  handler.openIframe();
+}
+</script>
+{% endblock %}
