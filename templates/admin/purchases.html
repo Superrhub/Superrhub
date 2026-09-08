@@ -1,0 +1,39 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Revenue — Admin{% endblock %}
+{% block page_title %}Revenue{% endblock %}
+
+{% block content %}
+
+<!-- Total Revenue -->
+<div class="bg-gray-900 rounded-xl border p-6 mb-6 inline-block" style="border-color:rgba(201,168,76,0.3);">
+  <div class="text-4xl font-bold mb-1" style="color:#c9a84c;">₦{{ total_revenue|floatformat:"0" }}</div>
+  <div class="text-gray-500 text-sm">Total Revenue from {{ purchases|length }} sale{{ purchases|length|pluralize }}</div>
+</div>
+
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-gray-500 text-xs uppercase">
+        <th class="text-left px-5 py-3">Reader</th>
+        <th class="text-left px-5 py-3">Story</th>
+        <th class="text-left px-5 py-3">Amount</th>
+        <th class="text-left px-5 py-3">Reference</th>
+        <th class="text-left px-5 py-3">Date</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800">
+      {% for item in purchases %}
+        <tr class="hover:bg-gray-800/50">
+          <td class="px-5 py-3 text-yellow-400 font-medium">{{ item.username }}</td>
+          <td class="px-5 py-3 text-gray-300 truncate max-w-xs">{{ item.story_title }}</td>
+          <td class="px-5 py-3 font-bold" style="color:#c9a84c;">₦{{ item.purchase.amount|floatformat:"0" }}</td>
+          <td class="px-5 py-3 text-gray-600 text-xs font-mono">{{ item.purchase.reference|slice:":25" }}</td>
+          <td class="px-5 py-3 text-gray-500 text-xs">{{ item.purchase.created_at|date:"M d, Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-center py-10 text-gray-600">No sales yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Stories — Admin{% endblock %}
+{% block page_title %}Stories{% endblock %}
+
+{% block content %}
+
+<form method="GET" class="flex gap-3 mb-6">
+  <input type="text" name="search" value="{{ search }}"
+         placeholder="Search by title..."
+         class="px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:border-yellow-500 w-72" />
+  <button type="submit" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-black text-sm font-semibold rounded-lg">Search</button>
+  {% if search %}<a href="{% url 'admin_stories' %}" class="px-4 py-2 border border-gray-700 text-gray-400 text-sm rounded-lg hover:text-white">Clear</a>{% endif %}
+</form>
+
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-gray-500 text-xs uppercase">
+        <th class="text-left px-5 py-3">Story</th>
+        <th class="text-left px-5 py-3">Author</th>
+        <th class="text-left px-5 py-3">Genre</th>
+        <th class="text-left px-5 py-3">Stats</th>
+        <th class="text-left px-5 py-3">Status</th>
+        <th class="text-left px-5 py-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800">
+      {% for story in stories %}
+        <tr class="hover:bg-gray-800/50">
+          <td class="px-5 py-3">
+            <p class="text-white font-medium truncate max-w-xs">{{ story.title }}</p>
+            <p class="text-gray-600 text-xs">{{ story.chapters_count }} chapters</p>
+          </td>
+          <td class="px-5 py-3 text-gray-400">{{ story.author_username }}</td>
+          <td class="px-5 py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs" style="background:rgba(201,168,76,0.15); color:#c9a84c;">
+              {{ story.genre }}
+            </span>
+          </td>
+          <td class="px-5 py-3 text-gray-500 text-xs">
+            👁 {{ story.views_count }} · ❤️ {{ story.likes_count }}
+          </td>
+          <td class="px-5 py-3">
+            {% if story.is_published %}
+              <span class="px-2 py-0.5 rounded-full text-xs bg-green-900/40 text-green-400 border border-green-800/40">Published</span>
+            {% else %}
+              <span class="px-2 py-0.5 rounded-full text-xs bg-gray-800 text-gray-500 border border-gray-700">Draft</span>
+            {% endif %}
+            {% if story.is_premium %}
+              <span class="px-2 py-0.5 rounded-full text-xs ml-1" style="background:rgba(201,168,76,0.15); color:#c9a84c;">₦{{ story.price }}</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3">
+            <div class="flex items-center gap-2">
+              <form action="{% url 'admin_toggle_story' story.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="text-xs px-2 py-1 rounded border border-gray-700 text-gray-400 hover:text-white hover:border-gray-500 transition-colors">
+                  {% if story.is_published %}Unpublish{% else %}Publish{% endif %}
+                </button>
+              </form>
+              <form action="{% url 'admin_delete_story' story.id %}" method="POST"
+                    onsubmit="return confirm('Delete this story permanently?');">
+                {% csrf_token %}
+                <button type="submit" class="text-xs px-2 py-1 rounded border border-red-900 text-red-500 hover:bg-red-900/20 transition-colors">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-center py-10 text-gray-600">No stories found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

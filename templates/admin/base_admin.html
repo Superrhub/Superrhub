@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin — SuperHub{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: { 400: '#e8c040', 500: '#c9a84c', 600: '#a07030' },
+            dark: { 800: '#181818', 900: '#111111' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-950 text-gray-200 min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-56 min-h-screen bg-gray-900 border-r border-gray-800 flex flex-col flex-shrink-0">
+    <div class="p-5 border-b border-gray-800">
+      <a href="{% url 'home' %}" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-gray-900"
+             style="background:linear-gradient(135deg,#f0d070,#c9a84c);">S</div>
+        <span class="font-bold text-white">SuperHub</span>
+      </a>
+      <div class="text-xs text-gray-500 mt-1">Admin Panel</div>
+    </div>
+
+    <nav class="flex-1 p-3 space-y-1">
+      <a href="{% url 'admin_dashboard' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        📊 Dashboard
+      </a>
+      <a href="{% url 'admin_users' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'users' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        👥 Users
+      </a>
+      <a href="{% url 'admin_stories' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'stories' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        📚 Stories
+      </a>
+      <a href="{% url 'admin_comments' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'comments' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        💬 Comments
+      </a>
+      <a href="{% url 'admin_purchases' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'purchases' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        💰 Revenue
+      </a>
+    </nav>
+
+    <div class="p-3 border-t border-gray-800">
+      <a href="{% url 'home' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+        ← Back to Site
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Top bar -->
+    <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <h1 class="text-lg font-semibold text-white">{% block page_title %}Dashboard{% endblock %}</h1>
+      <div class="text-sm text-gray-500">{{ current_user.username }}</div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+      <div class="px-6 pt-4">
+        {% for message in messages %}
+          <div class="px-4 py-3 rounded-lg mb-2 text-sm
+            {% if message.tags == 'success' %}bg-green-900/40 text-green-400 border border-green-800/40
+            {% else %}bg-red-900/40 text-red-400 border border-red-800/40{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <main class="flex-1 p-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</body>
+</html>

@@ -119,6 +119,12 @@
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     📊 Dashboard
                   </a>
+                  {% if current_user.username == 'MubarakAhmedAlibaba' %}
+                  <a href="{% url 'admin_dashboard' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gold-500 hover:text-gold-300 hover:bg-dark-50 transition-colors">
+                    👑 Admin Panel
+                  </a>
+                  {% endif %}
                   <a href="{% url 'dashboard' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     📊 Dashboard

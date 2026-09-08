@@ -1,0 +1,66 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Users — Admin{% endblock %}
+{% block page_title %}Users{% endblock %}
+
+{% block content %}
+
+<!-- Search -->
+<form method="GET" class="flex gap-3 mb-6">
+  <input type="text" name="search" value="{{ search }}"
+         placeholder="Search by username or email..."
+         class="px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:border-yellow-500 w-72" />
+  <button type="submit" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-black text-sm font-semibold rounded-lg">Search</button>
+  {% if search %}<a href="{% url 'admin_users' %}" class="px-4 py-2 border border-gray-700 text-gray-400 text-sm rounded-lg hover:text-white">Clear</a>{% endif %}
+</form>
+
+<!-- Users Table -->
+<div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="border-b border-gray-800">
+      <tr class="text-gray-500 text-xs uppercase">
+        <th class="text-left px-5 py-3">User</th>
+        <th class="text-left px-5 py-3">Email</th>
+        <th class="text-left px-5 py-3">Joined</th>
+        <th class="text-left px-5 py-3">Status</th>
+        <th class="text-left px-5 py-3">Action</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800">
+      {% for user in users %}
+        <tr class="hover:bg-gray-800/50">
+          <td class="px-5 py-3">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                   style="background:rgba(201,168,76,0.2); color:#c9a84c;">
+                {{ user.username|first|upper }}
+              </div>
+              <span class="text-white font-medium">{{ user.username }}</span>
+            </div>
+          </td>
+          <td class="px-5 py-3 text-gray-400">{{ user.email }}</td>
+          <td class="px-5 py-3 text-gray-500">{{ user.created_at|date:"M d, Y" }}</td>
+          <td class="px-5 py-3">
+            {% if user.is_active %}
+              <span class="px-2 py-0.5 rounded-full text-xs bg-green-900/40 text-green-400 border border-green-800/40">Active</span>
+            {% else %}
+              <span class="px-2 py-0.5 rounded-full text-xs bg-red-900/40 text-red-400 border border-red-800/40">Suspended</span>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3">
+            <form action="{% url 'admin_toggle_user' user.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit"
+                      class="text-xs px-3 py-1 rounded border transition-colors
+                      {% if user.is_active %}border-red-800 text-red-400 hover:bg-red-900/20{% else %}border-green-800 text-green-400 hover:bg-green-900/20{% endif %}">
+                {% if user.is_active %}Suspend{% else %}Activate{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-center py-10 text-gray-600">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
