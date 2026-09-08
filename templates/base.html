@@ -91,6 +91,14 @@
             <a href="{% url 'create_story' %}" class="btn-primary text-sm py-2 px-4">
               ✏️ Write
             </a>
+
+            <!-- Notification Bell -->
+            <a href="{% url 'notifications' %}" class="relative text-gray-400 hover:text-gold-500 transition-colors p-2 rounded-lg hover:bg-dark-50"
+               id="notif-bell" title="Notifications">
+              🔔
+              <span id="notif-badge" class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-xs font-bold flex items-center justify-center hidden"
+                    style="background:#c9a84c; color:#0a0a0a; font-size:0.6rem;"></span>
+            </a>
             <!-- User dropdown -->
             <div class="relative group">
               <button class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-dark-50">
@@ -132,6 +140,10 @@
                   <a href="{% url 'reading_list' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     🔖 Reading List
+                  </a>
+                  <a href="{% url 'notifications' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                    🔔 Notifications
                   </a>
                   <hr class="border-dark-50 my-1" />
                   <a href="{% url 'logout' %}"
@@ -230,6 +242,27 @@
     if (btn && menu) {
       btn.addEventListener('click', () => menu.classList.toggle('hidden'));
     }
+
+    // Notification badge
+    {% if current_user %}
+    function fetchNotifCount() {
+      fetch('/interactions/notifications/count/')
+        .then(r => r.json())
+        .then(data => {
+          const badge = document.getElementById('notif-badge');
+          if (badge) {
+            if (data.count > 0) {
+              badge.textContent = data.count > 9 ? '9+' : data.count;
+              badge.classList.remove('hidden');
+            } else {
+              badge.classList.add('hidden');
+            }
+          }
+        }).catch(() => {});
+    }
+    fetchNotifCount();
+    setInterval(fetchNotifCount, 30000); // check every 30 seconds
+    {% endif %}
   </script>
 
   {% block extra_js %}{% endblock %}

@@ -27,6 +27,19 @@ def toggle_like(request, story_id):
         Story.objects(id=story_id).update_one(inc__likes_count=1)
         is_liked = True
 
+        # Send notification to story author
+        story = Story.objects(id=story_id).first()
+        if story and story.author_id != str(current_user.id):
+            from .models import Notification
+            Notification(
+                recipient_id=story.author_id,
+                sender_username=current_user.username,
+                notif_type='like',
+                story_id=story_id,
+                story_title=story.title,
+                message=f'{current_user.username} liked your story "{story.title}"',
+            ).save()
+
     story = Story.objects(id=story_id).first()
 
     # HTMX partial response
@@ -55,6 +68,19 @@ def add_comment(request, story_id):
                 story_id=story_id,
                 content=content[:500],
             ).save()
+
+            # Send notification to story author
+            story = Story.objects(id=story_id).first()
+            if story and story.author_id != str(current_user.id):
+                from .models import Notification
+                Notification(
+                    recipient_id=story.author_id,
+                    sender_username=current_user.username,
+                    notif_type='comment',
+                    story_id=story_id,
+                    story_title=story.title,
+                    message=f'{current_user.username} commented on "{story.title}": {content[:60]}...' if len(content) > 60 else f'{current_user.username} commented on "{story.title}": {content}',
+                ).save()
 
     # HTMX partial response
     if request.headers.get('HX-Request'):
@@ -220,3 +246,33 @@ def has_access(user, story):
     return Purchase.objects(
         user_id=str(user.id), story_id=str(story.id), verified=True
     ).first() is not None
+
+
+def notifications_view(request):
+    current_user = get_current_user(request)
+    if not current_user:
+        return redirect('login')
+    from .models import Notification
+    notifications = list(
+        Notification.objects(recipient_id=str(current_user.id)).order_by('-created_at')[:50]
+    )
+    # Mark all as read
+    Notification.objects(
+        recipient_id=str(current_user.id), is_read=False
+    ).update(set__is_read=True)
+    return render(request, 'interactions/notifications.html', {
+        'notifications': notifications,
+        'current_user': current_user,
+    })
+
+
+def unread_count(request):
+    """Returns unread notification count as JSON."""
+    current_user = get_current_user(request)
+    if not current_user:
+        return JsonResponse({'count': 0})
+    from .models import Notification
+    count = Notification.objects(
+        recipient_id=str(current_user.id), is_read=False
+    ).count()
+    return JsonResponse({'count': count})

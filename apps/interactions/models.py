@@ -30,14 +30,30 @@ class ReadingList(Document):
 
 
 class Purchase(Document):
-    """Records when a user purchases access to a premium story."""
     user_id = StringField(required=True)
     story_id = StringField(required=True)
-    amount = FloatField(required=True)          # amount paid in NGN
-    reference = StringField(required=True)      # Paystack reference
-    verified = BooleanField(default=False)      # confirmed by Paystack
+    amount = FloatField(required=True)
+    reference = StringField(required=True)
+    verified = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.utcnow)
     meta = {
         'collection': 'purchases',
         'indexes': [('user_id', 'story_id'), 'reference'],
+    }
+
+
+class Notification(Document):
+    """In-app notifications for story authors."""
+    recipient_id = StringField(required=True)   # story author
+    sender_username = StringField(required=True) # who triggered it
+    notif_type = StringField(required=True)      # 'like', 'comment', 'follow'
+    story_id = StringField(default='')
+    story_title = StringField(default='')
+    message = StringField(required=True)
+    is_read = BooleanField(default=False)
+    created_at = DateTimeField(default=datetime.utcnow)
+
+    meta = {
+        'collection': 'notifications',
+        'indexes': ['recipient_id', 'is_read'],
     }

@@ -9,4 +9,6 @@ urlpatterns = [
     path('reading-list/<str:story_id>/toggle/', views.toggle_reading_list, name='toggle_reading_list'),
     path('pay/<str:story_id>/', views.initiate_payment, name='initiate_payment'),
     path('verify/<str:story_id>/', views.verify_payment, name='verify_payment'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('notifications/count/', views.unread_count, name='unread_count'),
 ]
