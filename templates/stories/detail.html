@@ -83,7 +83,57 @@
       </button>
     </form>
 
-    {% if is_author %}
+    <!-- Share Buttons -->
+    <div class="flex items-center gap-2">
+
+      <!-- WhatsApp -->
+      <a href="https://wa.me/?text={{ story.title|urlencode }}%20on%20SuperRHub%20https%3A//superrhub.onrender.com/stories/{{ story.id }}/"
+         target="_blank"
+         class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
+         style="background:#25D366; color:#fff;"
+         onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';"
+         title="Share on WhatsApp">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.849L0 24l6.335-1.502A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.5-5.198-1.374L3 21.5l.898-3.717A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+        </svg>
+        WhatsApp
+      </a>
+
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A//superrhub.onrender.com/stories/{{ story.id }}/"
+         target="_blank"
+         class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
+         style="background:#1877F2; color:#fff;"
+         onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';"
+         title="Share on Facebook">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+        Facebook
+      </a>
+
+      <!-- TikTok -->
+      <a href="https://www.tiktok.com/@mubarakinkz"
+         target="_blank"
+         class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
+         style="background:#000; color:#fff; border:1px solid #333;"
+         onmouseover="this.style.background='#111';" onmouseout="this.style.background='#000';"
+         title="Follow on TikTok">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.22 8.22 0 004.84 1.56V6.79a4.85 4.85 0 01-1.07-.1z"/>
+        </svg>
+        TikTok
+      </a>
+
+      <!-- Copy Link -->
+      <button onclick="copyStoryLink('{{ story.id }}', '{{ story.title|escapejs }}')"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all btn-secondary"
+              title="Copy link" id="copy-btn-{{ story.id }}">
+        🔗 Copy Link
+      </button>
+
+    </div>    {% if is_author %}
       <a href="{% url 'add_chapter' story.id %}" class="btn-secondary text-sm px-4 py-2">
         ➕ Add Chapter
       </a>
@@ -185,23 +235,31 @@
 
 {% block extra_js %}
 <script>
-function shareStory(storyId, title) {
+function copyStoryLink(storyId, title) {
   const url = window.location.origin + '/stories/' + storyId + '/';
-  const text = 'Check out "' + title + '" on SuperHub 📖\n' + url;
+  const text = 'Read "' + title + '" on SuperRHub 📖\n' + url;
+
+  // On mobile open WhatsApp
   if (/Android|iPhone/i.test(navigator.userAgent)) {
     window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     return;
   }
+  // On desktop copy to clipboard
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(() => {
-      const btn = document.querySelector('[onclick*="shareStory"]');
-      const orig = btn.innerHTML;
-      btn.innerHTML = '✅ Copied!';
-      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      const btn = document.getElementById('copy-btn-' + storyId);
+      if (btn) {
+        btn.innerHTML = '✅ Copied!';
+        setTimeout(() => { btn.innerHTML = '🔗 Copy Link'; }, 2000);
+      }
     });
   } else {
     prompt('Copy this link:', url);
   }
+}
+
+function shareStory(storyId, title) {
+  copyStoryLink(storyId, title);
 }
 </script>
 {% endblock %}
