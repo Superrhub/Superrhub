@@ -12,6 +12,7 @@ class User(Document):
     password = StringField(required=True)
     bio = StringField(max_length=500, default='')
     avatar = StringField(default='')
+    role = StringField(choices=['reader', 'writer'], default='reader')
     followers = ListField(StringField())
     following = ListField(StringField())
     created_at = DateTimeField(default=datetime.utcnow)
@@ -24,6 +25,14 @@ class User(Document):
 
     def check_password(self, raw_password):
         return django_check_password(raw_password, self.password)
+
+    @property
+    def is_writer(self):
+        return self.role == 'writer'
+
+    @property
+    def is_reader(self):
+        return self.role == 'reader'
 
     @property
     def followers_count(self):

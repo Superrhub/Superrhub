@@ -101,9 +101,11 @@
         <!-- Desktop Auth -->
         <div class="hidden md:flex items-center gap-3">
           {% if current_user %}
+            {% if current_user.is_writer %}
             <a href="{% url 'create_story' %}" class="btn-primary text-sm py-2 px-4">
               ✏️ Write
             </a>
+            {% endif %}
 
             <!-- Notification Bell -->
             <a href="{% url 'notifications' %}" class="relative text-gray-400 hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-dark-50"
@@ -137,10 +139,12 @@
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     📚 My Stories
                   </a>
+                  {% if current_user.is_writer %}
                   <a href="{% url 'dashboard' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
                     📊 Dashboard
                   </a>
+                  {% endif %}
                   {% if current_user.username == 'MubarakAhmedAlibaba' %}
                   <a href="{% url 'admin_dashboard' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-blue-500 hover:text-blue-300 hover:bg-dark-50 transition-colors">

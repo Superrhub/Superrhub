@@ -54,12 +54,14 @@ def register_view(request):
                 username=data['username'],
                 email=data['email'],
                 bio=data.get('bio', ''),
+                role=data.get('role', 'reader'),
             )
             user.set_password(data['password'])
             user.save()
             request.session['user_id'] = str(user.id)
             request.session['username'] = user.username
-            messages.success(request, f'Welcome to SuperHub, {user.username}! 🎉')
+            request.session['role'] = user.role
+            messages.success(request, f'Welcome to SuperRHub, {user.username}! 🎉')
             return redirect('home')
     return render(request, 'auth/register.html', {'form': form})
 
@@ -77,6 +79,7 @@ def login_view(request):
             else:
                 request.session['user_id'] = str(user.id)
                 request.session['username'] = user.username
+                request.session['role'] = user.role
                 messages.success(request, f'Welcome back, {user.username}!')
                 return redirect('home')
         else:

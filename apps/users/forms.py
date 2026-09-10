@@ -15,6 +15,12 @@ class RegisterForm(forms.Form):
     confirm_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Confirm password', 'class': 'form-input'})
     )
+    role = forms.ChoiceField(
+        choices=[('reader', 'Reader — I want to read stories'),
+                 ('writer', 'Writer — I want to publish stories')],
+        widget=forms.RadioSelect(attrs={'class': 'role-radio'}),
+        initial='reader'
+    )
     bio = forms.CharField(
         required=False,
         max_length=500,

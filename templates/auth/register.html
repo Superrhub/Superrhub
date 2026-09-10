@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}Join SuperHub{% endblock %}
+{% block title %}Join SuperRHub{% endblock %}
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 py-16"
-     style="background: radial-gradient(ellipse at center, #000d1a 0%, #0a0a0a 70%);">
+     style="background: radial-gradient(ellipse at center, #000d1a 0%, #080810 70%);">
 
   <div class="w-full max-w-md">
 
     <!-- Logo -->
     <div class="text-center mb-8">
       <a href="{% url 'home' %}" class="inline-flex items-center gap-2 mb-4">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center font-serif font-bold text-dark-600 text-xl"
-             style="background: linear-gradient(135deg, #60a5fa, #0066ff);">S</div>
+        {% load static %}
+        <img src="{% static 'images/logo.png' %}" alt="SuperRHub" class="h-14 w-auto mx-auto" />
       </a>
-      <h1 class="text-2xl font-bold text-white font-serif">Join SuperHub</h1>
-      <p class="text-gray-500 text-sm mt-1">Start reading and writing today — it's free</p>
+      <h1 class="text-2xl font-bold text-white font-serif">Join SuperRHub</h1>
+      <p class="text-gray-500 text-sm mt-1">Books • Stories • More</p>
     </div>
 
     <!-- Card -->
@@ -28,6 +28,41 @@
 
       <form method="POST" action="{% url 'register' %}" class="space-y-5">
         {% csrf_token %}
+
+        <!-- Role Selection -->
+        <div>
+          <label class="block text-sm font-semibold text-white mb-3">I want to join as:</label>
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Reader -->
+            <label class="role-card cursor-pointer" id="reader-card">
+              <input type="radio" name="role" value="reader" checked class="hidden" id="role-reader" />
+              <div class="rounded-xl border-2 p-4 text-center transition-all duration-200 hover:border-blue-500"
+                   id="reader-box"
+                   style="background:#0a0a18; border-color:#0066ff;">
+                <div class="text-3xl mb-2">📚</div>
+                <div class="text-white font-bold text-sm">Reader</div>
+                <div class="text-gray-500 text-xs mt-1">Discover & read stories</div>
+              </div>
+            </label>
+
+            <!-- Writer -->
+            <label class="role-card cursor-pointer" id="writer-card">
+              <input type="radio" name="role" value="writer" class="hidden" id="role-writer" />
+              <div class="rounded-xl border-2 p-4 text-center transition-all duration-200 hover:border-blue-500"
+                   id="writer-box"
+                   style="background:#0a0a18; border-color:#1a1a2e;">
+                <div class="text-3xl mb-2">✍️</div>
+                <div class="text-white font-bold text-sm">Writer</div>
+                <div class="text-gray-500 text-xs mt-1">Publish your own stories</div>
+              </div>
+            </label>
+
+          </div>
+          {% if form.role.errors %}
+            <p class="text-red-400 text-xs mt-1">{{ form.role.errors.0 }}</p>
+          {% endif %}
+        </div>
 
         <!-- Username -->
         <div>
@@ -88,4 +123,39 @@
 
   </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Role card toggle
+  const readerRadio = document.getElementById('role-reader');
+  const writerRadio = document.getElementById('role-writer');
+  const readerBox = document.getElementById('reader-box');
+  const writerBox = document.getElementById('writer-box');
+
+  function updateCards() {
+    if (readerRadio.checked) {
+      readerBox.style.borderColor = '#0066ff';
+      readerBox.style.background = '#0a0a18';
+      writerBox.style.borderColor = '#1a1a2e';
+      writerBox.style.background = '#0a0a18';
+    } else {
+      writerBox.style.borderColor = '#0066ff';
+      writerBox.style.background = '#0a0a18';
+      readerBox.style.borderColor = '#1a1a2e';
+      readerBox.style.background = '#0a0a18';
+    }
+  }
+
+  document.getElementById('reader-card').addEventListener('click', () => {
+    readerRadio.checked = true;
+    updateCards();
+  });
+
+  document.getElementById('writer-card').addEventListener('click', () => {
+    writerRadio.checked = true;
+    updateCards();
+  });
+</script>
 {% endblock %}
