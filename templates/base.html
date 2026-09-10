@@ -115,8 +115,9 @@
                     style="background:#0066ff; color:#ffffff; font-size:0.6rem;"></span>
             </a>
             <!-- User dropdown -->
-            <div class="relative group">
-              <button class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-dark-50">
+            <div class="relative" id="user-menu-container">
+              <button onclick="toggleUserMenu()" id="user-menu-btn"
+                      class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-dark-50">
                 <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
                      style="background: linear-gradient(135deg, #0088ff, #0044cc);">
                   {{ current_user.username|first|upper }}
@@ -127,46 +128,51 @@
                 </svg>
               </button>
               <!-- Dropdown -->
-              <div class="absolute right-0 mt-1 w-48 border rounded-xl shadow-2xl
-                          opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+              <div id="user-menu-dropdown"
+                   class="absolute right-0 mt-1 w-52 border rounded-xl shadow-2xl z-50 hidden"
                    style="background:#0d0d1a; border-color:#1a1a2e;">
                 <div class="py-1">
+                  <!-- Role badge -->
+                  <div class="px-4 py-2 border-b" style="border-color:#1a1a2e;">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                      {% if current_user.is_writer %}text-blue-400{% else %}text-green-400{% endif %}"
+                      style="{% if current_user.is_writer %}background:rgba(0,102,255,0.15){% else %}background:rgba(34,197,94,0.15){% endif %}">
+                      {% if current_user.is_writer %}✍️ Writer{% else %}📚 Reader{% endif %}
+                    </span>
+                  </div>
                   <a href="{% url 'profile' current_user.username %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors"
+                     style="hover:background:#1a1a2e;">
                     👤 My Profile
                   </a>
-                  <a href="{% url 'my_stories' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
-                    📚 My Stories
+                  <a href="{% url 'reading_list' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
+                    🔖 Reading List
+                  </a>
+                  <a href="{% url 'notifications' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
+                    🔔 Notifications
                   </a>
                   {% if current_user.is_writer %}
+                  <a href="{% url 'my_stories' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
+                    📝 My Stories
+                  </a>
                   <a href="{% url 'dashboard' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
                     📊 Dashboard
                   </a>
                   {% endif %}
                   {% if current_user.username == 'MubarakAhmedAlibaba' %}
                   <a href="{% url 'admin_dashboard' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-blue-500 hover:text-blue-300 hover:bg-dark-50 transition-colors">
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-blue-400 hover:text-blue-300 transition-colors">
                     👑 Admin Panel
                   </a>
                   {% endif %}
-                  <a href="{% url 'dashboard' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
-                    📊 Dashboard
-                  </a>
-                  <a href="{% url 'reading_list' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
-                    🔖 Reading List
-                  </a>
-                  <a href="{% url 'notifications' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
-                    🔔 Notifications
-                  </a>
-                  <hr class="border-dark-50 my-1" />
+                  <hr class="my-1" style="border-color:#1a1a2e;" />
                   <a href="{% url 'logout' %}"
-                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-dark-50 transition-colors">
-                    🚪 Logout
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 transition-colors">
+                    🚪 Sign Out
                   </a>
                 </div>
               </div>
@@ -374,6 +380,20 @@
     if (btn && menu) {
       btn.addEventListener('click', () => menu.classList.toggle('hidden'));
     }
+
+    // User dropdown — click to open/close
+    function toggleUserMenu() {
+      const dropdown = document.getElementById('user-menu-dropdown');
+      if (dropdown) dropdown.classList.toggle('hidden');
+    }
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('user-menu-container');
+      const dropdown = document.getElementById('user-menu-dropdown');
+      if (container && dropdown && !container.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
 
     // Notification badge
     {% if current_user %}
