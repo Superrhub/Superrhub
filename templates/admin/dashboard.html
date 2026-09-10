@@ -23,7 +23,7 @@
     <div class="text-gray-500 text-sm mt-1">Sales</div>
   </div>
   <div class="bg-gray-900 rounded-xl border border-gray-800 p-5 text-center">
-    <div class="text-3xl font-bold" style="color:#c9a84c;">₦{{ total_revenue|floatformat:"0" }}</div>
+    <div class="text-3xl font-bold" style="color:#0066ff;">₦{{ total_revenue|floatformat:"0" }}</div>
     <div class="text-gray-500 text-sm mt-1">Revenue</div>
   </div>
 </div>
@@ -41,7 +41,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                 style="background:rgba(201,168,76,0.2); color:#c9a84c;">
+                 style="background:rgba(0,102,255,0.2); color:#0066ff;">
               {{ user.username|first|upper }}
             </div>
             <div>
@@ -73,7 +73,7 @@
               <p class="text-sm text-white font-medium">{{ p.reference|slice:":20" }}...</p>
               <p class="text-xs text-gray-500">{{ p.created_at|date:"M d, Y H:i" }}</p>
             </div>
-            <span class="text-sm font-bold" style="color:#c9a84c;">₦{{ p.amount|floatformat:"0" }}</span>
+            <span class="text-sm font-bold" style="color:#0066ff;">₦{{ p.amount|floatformat:"0" }}</span>
           </div>
         {% endfor %}
       </div>

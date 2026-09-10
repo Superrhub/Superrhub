@@ -5,8 +5,8 @@
 {% block content %}
 
 <!-- Total Revenue -->
-<div class="bg-gray-900 rounded-xl border p-6 mb-6 inline-block" style="border-color:rgba(201,168,76,0.3);">
-  <div class="text-4xl font-bold mb-1" style="color:#c9a84c;">₦{{ total_revenue|floatformat:"0" }}</div>
+<div class="bg-gray-900 rounded-xl border p-6 mb-6 inline-block" style="border-color:rgba(0,102,255,0.3);">
+  <div class="text-4xl font-bold mb-1" style="color:#0066ff;">₦{{ total_revenue|floatformat:"0" }}</div>
   <div class="text-gray-500 text-sm">Total Revenue from {{ purchases|length }} sale{{ purchases|length|pluralize }}</div>
 </div>
 
@@ -26,7 +26,7 @@
         <tr class="hover:bg-gray-800/50">
           <td class="px-5 py-3 text-yellow-400 font-medium">{{ item.username }}</td>
           <td class="px-5 py-3 text-gray-300 truncate max-w-xs">{{ item.story_title }}</td>
-          <td class="px-5 py-3 font-bold" style="color:#c9a84c;">₦{{ item.purchase.amount|floatformat:"0" }}</td>
+          <td class="px-5 py-3 font-bold" style="color:#0066ff;">₦{{ item.purchase.amount|floatformat:"0" }}</td>
           <td class="px-5 py-3 text-gray-600 text-xs font-mono">{{ item.purchase.reference|slice:":25" }}</td>
           <td class="px-5 py-3 text-gray-500 text-xs">{{ item.purchase.created_at|date:"M d, Y H:i" }}</td>
         </tr>

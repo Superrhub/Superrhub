@@ -31,7 +31,7 @@
       <!-- Progress -->
       <div class="flex items-center gap-2 text-xs opacity-50">
         <div class="w-20 h-1.5 rounded-full" style="background:#e8dcc8;">
-          <div class="h-full rounded-full" style="background:#c9a84c; width:{% widthratio chapter.chapter_number total_chapters 100 %}%;"></div>
+          <div class="h-full rounded-full" style="background:#0066ff; width:{% widthratio chapter.chapter_number total_chapters 100 %}%;"></div>
         </div>
         Ch {{ chapter.chapter_number }}/{{ total_chapters }}
       </div>
@@ -65,9 +65,9 @@
 
     <!-- Chapter Header -->
     <div class="mb-10 text-center">
-      <p class="text-sm font-medium mb-2" style="color:#c9a84c;">Chapter {{ chapter.chapter_number }}</p>
+      <p class="text-sm font-medium mb-2" style="color:#0066ff;">Chapter {{ chapter.chapter_number }}</p>
       <h1 id="chapter-title" class="text-3xl sm:text-4xl font-bold font-serif mb-3">{{ chapter.title }}</h1>
-      <div class="w-16 h-0.5 mx-auto rounded" style="background:#c9a84c;"></div>
+      <div class="w-16 h-0.5 mx-auto rounded" style="background:#0066ff;"></div>
     </div>
 
     <!-- Content -->
@@ -80,7 +80,7 @@
       {% if prev_num %}
         <a href="{% url 'reader' story.id prev_num %}" class="flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm transition-all"
            style="background:#fff; border:1px solid #e8dcc8; color:#555;"
-           onmouseover="this.style.borderColor='#c9a84c';" onmouseout="this.style.borderColor='#e8dcc8';">
+           onmouseover="this.style.borderColor='#0066ff';" onmouseout="this.style.borderColor='#e8dcc8';">
           &larr; Previous
         </a>
       {% else %}
@@ -90,18 +90,18 @@
         </a>
       {% endif %}
 
-      <a href="{% url 'story_detail' story.id %}" class="text-sm font-medium px-4 py-2 rounded-lg" style="color:#c9a84c;">
+      <a href="{% url 'story_detail' story.id %}" class="text-sm font-medium px-4 py-2 rounded-lg" style="color:#0066ff;">
         Contents
       </a>
 
       {% if next_num %}
         <a href="{% url 'reader' story.id next_num %}" class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
-           style="background:linear-gradient(135deg,#c9a84c,#a07030); color:#fff;">
+           style="background:linear-gradient(135deg,#0066ff,#0044cc); color:#fff;">
           Next &rarr;
         </a>
       {% else %}
         <div class="text-center px-6 py-3">
-          <span class="text-sm font-medium" style="color:#c9a84c;">🎉 The End</span>
+          <span class="text-sm font-medium" style="color:#0066ff;">🎉 The End</span>
         </div>
       {% endif %}
     </div>
@@ -119,7 +119,7 @@
         </button>
         <a href="{% url 'browse' %}"
            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm mb-3"
-           style="background:linear-gradient(135deg,#c9a84c,#a07030); color:#0a0a0a;">
+           style="background:linear-gradient(135deg,#0066ff,#0044cc); color:#ffffff;">
           Discover More
         </a>
       </div>
@@ -130,7 +130,7 @@
 
 <!-- Share Toast -->
 <div id="share-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-white text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50"
-     style="background:#c9a84c; color:#0a0a0a;">
+     style="background:#0066ff; color:#ffffff;">
   Link copied! Share with friends 🎉
 </div>
 

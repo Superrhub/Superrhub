@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 py-16"
-     style="background: radial-gradient(ellipse at center, #120d00 0%, #0a0a0a 70%);">
+     style="background: radial-gradient(ellipse at center, #000d1a 0%, #0a0a0a 70%);">
 
   <div class="w-full max-w-md">
 
     <!-- Story info -->
-    <div class="rounded-2xl border p-8 mb-6 text-center" style="background:#111; border-color:#222;">
+    <div class="rounded-2xl border p-8 mb-6 text-center" style="background:#0d0d1a; border-color:#1a1a2e;">
 
       <!-- Cover -->
-      <div class="w-24 h-32 mx-auto rounded-xl overflow-hidden border mb-4" style="border-color:rgba(201,168,76,0.3);">
+      <div class="w-24 h-32 mx-auto rounded-xl overflow-hidden border mb-4" style="border-color:rgba(0,102,255,0.3);">
         {% if story.cover_image %}
           <img src="{{ story.cover_image }}" alt="{{ story.title }}" class="w-full h-full object-cover" />
         {% else %}
@@ -25,8 +25,8 @@
       <p class="text-gray-500 text-sm mb-4">by {{ story.author_username }}</p>
 
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4"
-           style="background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3);">
-        <span class="text-gold-500 text-lg font-bold">₦{{ story.price|floatformat:"0" }}</span>
+           style="background:rgba(0,102,255,0.15); border:1px solid rgba(0,102,255,0.3);">
+        <span class="text-blue-500 text-lg font-bold">₦{{ story.price|floatformat:"0" }}</span>
         <span class="text-gray-500 text-sm">— Complete Book Access</span>
       </div>
 
@@ -44,7 +44,7 @@
           <span class="text-green-400">✓</span> One-time payment — no subscription
         </div>
         <div class="flex items-center gap-2 text-sm text-gray-400">
-          <span class="text-gold-500">📖</span> First {{ story.free_chapters }} chapters already free
+          <span class="text-blue-500">📖</span> First {{ story.free_chapters }} chapters already free
         </div>
       </div>
 

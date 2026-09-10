@@ -6,17 +6,17 @@
 
   <!-- Profile Header -->
   <div class="rounded-2xl border p-8 mb-10 flex flex-col sm:flex-row items-center sm:items-start gap-6"
-       style="background: linear-gradient(135deg, #111 0%, #0d0d0d 100%); border-color:#222;">
+       style="background: linear-gradient(135deg, #111 0%, #0d0d0d 100%); border-color:#1a1a2e;">
 
     <!-- Avatar -->
     <div class="flex-shrink-0">
       {% if profile_user.avatar %}
         <img src="{{ profile_user.avatar }}" alt="{{ profile_user.username }}"
              class="w-24 h-24 rounded-full object-cover border-2"
-             style="border-color: rgba(201,168,76,0.5);" />
+             style="border-color: rgba(0,102,255,0.5);" />
       {% else %}
         <div class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold font-serif"
-             style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+             style="background: linear-gradient(135deg, #0066ff, #0044cc); color:#ffffff;">
           {{ profile_user.username|first|upper }}
         </div>
       {% endif %}
@@ -33,17 +33,17 @@
 
       <div class="flex items-center justify-center sm:justify-start gap-6 text-sm mb-5">
         <div class="text-center">
-          <div class="text-xl font-bold text-gold-500">{{ profile_user.followers_count }}</div>
+          <div class="text-xl font-bold text-blue-500">{{ profile_user.followers_count }}</div>
           <div class="text-gray-500 text-xs">Followers</div>
         </div>
         <div class="w-px h-8" style="background:#222;"></div>
         <div class="text-center">
-          <div class="text-xl font-bold text-gold-500">{{ profile_user.following_count }}</div>
+          <div class="text-xl font-bold text-blue-500">{{ profile_user.following_count }}</div>
           <div class="text-gray-500 text-xs">Following</div>
         </div>
         <div class="w-px h-8" style="background:#222;"></div>
         <div class="text-center">
-          <div class="text-xl font-bold text-gold-500">{{ user_stories|length }}</div>
+          <div class="text-xl font-bold text-blue-500">{{ user_stories|length }}</div>
           <div class="text-gray-500 text-xs">Stories</div>
         </div>
       </div>
@@ -86,7 +86,7 @@
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center py-16 border border-dashed rounded-2xl" style="border-color:#222;">
+    <div class="text-center py-16 border border-dashed rounded-2xl" style="border-color:#1a1a2e;">
       <div class="text-5xl mb-3">📭</div>
       <p class="text-gray-500">No published stories yet.</p>
       {% if is_own %}

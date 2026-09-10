@@ -13,8 +13,8 @@
     <div class="space-y-3">
       {% for notif in notifications %}
         <div class="flex items-start gap-4 p-4 rounded-xl border transition-all"
-             style="background:{% if not notif.is_read %}rgba(201,168,76,0.05){% else %}#111{% endif %};
-                    border-color:{% if not notif.is_read %}rgba(201,168,76,0.2){% else %}#222{% endif %};">
+             style="background:{% if not notif.is_read %}rgba(0,102,255,0.05){% else %}#111{% endif %};
+                    border-color:{% if not notif.is_read %}rgba(0,102,255,0.2){% else %}#222{% endif %};">
 
           <!-- Icon -->
           <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
@@ -34,19 +34,19 @@
           <!-- Link -->
           {% if notif.story_id %}
             <a href="{% url 'story_detail' notif.story_id %}"
-               class="text-gold-500 hover:text-gold-300 text-xs flex-shrink-0 transition-colors">
+               class="text-blue-500 hover:text-blue-300 text-xs flex-shrink-0 transition-colors">
               View &rarr;
             </a>
           {% endif %}
 
           {% if not notif.is_read %}
-            <div class="w-2 h-2 rounded-full flex-shrink-0 mt-1" style="background:#c9a84c;"></div>
+            <div class="w-2 h-2 rounded-full flex-shrink-0 mt-1" style="background:#0066ff;"></div>
           {% endif %}
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center py-24 border border-dashed rounded-2xl" style="border-color:#222;">
+    <div class="text-center py-24 border border-dashed rounded-2xl" style="border-color:#1a1a2e;">
       <div class="text-5xl mb-4">🔔</div>
       <h3 class="text-xl font-semibold text-gray-400 mb-2">No notifications yet</h3>
       <p class="text-gray-600 text-sm">When someone likes or comments on your story, you'll see it here.</p>

@@ -34,17 +34,17 @@
     <!-- Stats bar -->
     <div class="flex items-center justify-center gap-8 mt-16 text-sm text-gray-600">
       <div class="text-center">
-        <div class="text-2xl font-bold text-gold-500">10K+</div>
+        <div class="text-2xl font-bold text-blue-500">10K+</div>
         <div>Stories</div>
       </div>
       <div class="w-px h-8 bg-dark-50"></div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-gold-500">50K+</div>
+        <div class="text-2xl font-bold text-blue-500">50K+</div>
         <div>Readers</div>
       </div>
       <div class="w-px h-8 bg-dark-50"></div>
       <div class="text-center">
-        <div class="text-2xl font-bold text-gold-500">5K+</div>
+        <div class="text-2xl font-bold text-blue-500">5K+</div>
         <div>Writers</div>
       </div>
     </div>
@@ -54,11 +54,11 @@
 <!-- ===== FEATURED: MY JANNAH ===== -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
   <div class="relative overflow-hidden rounded-2xl border"
-       style="background: linear-gradient(135deg, #120d00, #1a1200, #0d0d0d); border-color: rgba(201,168,76,0.3);">
+       style="background: linear-gradient(135deg, #000d1a, #00112b, #0d0d0d); border-color: rgba(0,102,255,0.3);">
 
     <!-- Gold glow top-left -->
     <div class="absolute top-0 left-0 w-64 h-64 rounded-full opacity-10 blur-3xl"
-         style="background: radial-gradient(circle, #c9a84c, transparent);"></div>
+         style="background: radial-gradient(circle, #0066ff, transparent);"></div>
 
     <div class="relative p-6 sm:p-10 flex flex-col sm:flex-row gap-8 items-center">
 
@@ -66,18 +66,18 @@
       <div class="flex-shrink-0">
         {% load static %}
         <div class="w-40 h-56 rounded-xl shadow-2xl border overflow-hidden"
-             style="border-color: rgba(201,168,76,0.4);">
+             style="border-color: rgba(0,102,255,0.4);">
           <img src="{% static 'images/jannah.jpg' %}"
                alt="My Jannah Cover"
                class="w-full h-full object-cover"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
           <div class="w-full h-full flex-col items-center justify-center p-4 text-center"
-               style="display:none; background: linear-gradient(160deg, #1a0a00, #0d0500);">
+               style="display:none; background: linear-gradient(160deg, #000d1a, #00091a);">
             <div class="text-3xl mb-3">📖</div>
-            <p class="font-serif font-bold text-gold-300 text-sm leading-tight mb-1">MY</p>
-            <p class="font-serif font-bold text-gold-400 text-2xl leading-tight">JANNAH</p>
-            <div class="w-8 h-px my-2" style="background:#c9a84c;"></div>
-            <p class="text-gold-600 text-xs leading-tight">The Story of Hauwa and Me</p>
+            <p class="font-serif font-bold text-blue-300 text-sm leading-tight mb-1">MY</p>
+            <p class="font-serif font-bold text-blue-400 text-2xl leading-tight">JANNAH</p>
+            <div class="w-8 h-px my-2" style="background:#0066ff;"></div>
+            <p class="text-blue-400 text-xs leading-tight">The Story of Hauwa and Me</p>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@
       <div class="flex-1">
         <div class="flex flex-wrap items-center gap-2 mb-3">
           <span class="px-3 py-1 rounded-full text-xs font-bold"
-                style="background:rgba(201,168,76,0.2); color:#f0d070; border:1px solid rgba(201,168,76,0.4);">
+                style="background:rgba(0,102,255,0.2); color:#60a5fa; border:1px solid rgba(0,102,255,0.4);">
             ⭐ Featured Story
           </span>
           <span class="genre-badge">Romance</span>
@@ -99,7 +99,7 @@
         <h2 class="text-2xl sm:text-3xl font-bold text-white mb-1 font-serif">
           My Jannah: The Story of Hauwa and Me
         </h2>
-        <p class="text-gold-500 font-medium mb-1">
+        <p class="text-blue-500 font-medium mb-1">
           by Muhammad Mubarak Ahmed
           <span class="text-gray-500 font-normal text-sm">(Mubarak Ahmed Alibaba)</span>
         </p>
@@ -118,7 +118,7 @@
           <span class="flex items-center gap-1">👁 14,820 views</span>
           <span class="flex items-center gap-1">❤️ 3,241 likes</span>
           <span class="flex items-center gap-1">📖 30 chapters</span>
-          <span class="flex items-center gap-1 text-gold-500">🎂 Completed 13 April 2026</span>
+          <span class="flex items-center gap-1 text-blue-500">🎂 Completed 13 April 2026</span>
         </div>
 
         <div class="flex gap-3">
@@ -138,7 +138,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
   <div class="flex items-center justify-between mb-6">
     <h2 class="section-heading">🆕 &nbsp; New Arrivals</h2>
-    <a href="{% url 'browse' %}" class="text-sm text-gold-500 hover:text-gold-300 transition-colors font-medium">
+    <a href="{% url 'browse' %}" class="text-sm text-blue-500 hover:text-blue-300 transition-colors font-medium">
       View all &rarr;
     </a>
   </div>
@@ -162,7 +162,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
   <div class="flex items-center justify-between mb-6">
     <h2 class="section-heading">🔥 &nbsp; Trending Now</h2>
-    <a href="{% url 'browse' %}" class="text-sm text-gold-500 hover:text-gold-300 transition-colors font-medium">
+    <a href="{% url 'browse' %}" class="text-sm text-blue-500 hover:text-blue-300 transition-colors font-medium">
       View all &rarr;
     </a>
   </div>
@@ -187,8 +187,8 @@
     {% for genre in genres %}
       <a href="{% url 'browse' %}?genre={{ genre }}"
          class="px-5 py-2.5 rounded-full text-sm font-medium border transition-all duration-200"
-         style="background:#111; border-color:#222; color:#888;"
-         onmouseover="this.style.borderColor='rgba(201,168,76,0.5)'; this.style.color='#c9a84c'; this.style.background='rgba(201,168,76,0.08)';"
+         style="background:#0d0d1a; border-color:#1a1a2e; color:#888;"
+         onmouseover="this.style.borderColor='rgba(0,102,255,0.5)'; this.style.color='#0066ff'; this.style.background='rgba(0,102,255,0.08)';"
          onmouseout="this.style.borderColor='#222'; this.style.color='#888'; this.style.background='#111';">
         {{ genre }}
       </a>
@@ -197,7 +197,7 @@
 </section>
 
 <!-- ===== CTA ===== -->
-<section class="border-y" style="background: linear-gradient(135deg, #100900, #0a0a0a, #100900); border-color:#1a1200;">
+<section class="border-y" style="background: linear-gradient(135deg, #000d1a, #0a0a0a, #000d1a); border-color:#00112b;">
   <div class="max-w-3xl mx-auto text-center px-4 py-20">
     <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 font-serif">
       Have a story to tell?

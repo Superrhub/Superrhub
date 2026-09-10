@@ -16,8 +16,8 @@
     <div class="space-y-4">
       {% for story in stories %}
         <div class="rounded-xl border p-5 flex items-center gap-5 transition-all"
-             style="background:#111; border-color:#222;"
-             onmouseover="this.style.borderColor='rgba(201,168,76,0.3)';"
+             style="background:#0d0d1a; border-color:#1a1a2e;"
+             onmouseover="this.style.borderColor='rgba(0,102,255,0.3)';"
              onmouseout="this.style.borderColor='#222';">
 
           <!-- Mini Cover -->
@@ -65,8 +65,8 @@
             </a>
             <a href="{% url 'add_chapter' story.id %}"
                class="text-xs px-3 py-2 rounded-lg border transition-colors"
-               style="border-color:rgba(201,168,76,0.3); color:#c9a84c;"
-               onmouseover="this.style.background='rgba(201,168,76,0.1)';"
+               style="border-color:rgba(0,102,255,0.3); color:#0066ff;"
+               onmouseover="this.style.background='rgba(0,102,255,0.1)';"
                onmouseout="this.style.background='transparent';">
               + Chapter
             </a>
@@ -95,7 +95,7 @@
     </div>
 
   {% else %}
-    <div class="text-center py-24 border border-dashed rounded-2xl" style="border-color:#222;">
+    <div class="text-center py-24 border border-dashed rounded-2xl" style="border-color:#1a1a2e;">
       <div class="text-6xl mb-4">✍️</div>
       <h3 class="text-xl font-semibold text-gray-400 mb-2">No stories yet</h3>
       <p class="text-gray-600 text-sm mb-6">Your stories will appear here once you create them.</p>

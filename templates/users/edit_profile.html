@@ -6,13 +6,13 @@
 
   <div class="mb-8">
     <a href="{% url 'profile' current_user.username %}"
-       class="text-gold-500 hover:text-gold-300 text-sm mb-3 inline-block">
+       class="text-blue-500 hover:text-blue-300 text-sm mb-3 inline-block">
       &larr; Back to Profile
     </a>
     <h1 class="text-3xl font-bold text-white font-serif">Edit Profile</h1>
   </div>
 
-  <div class="rounded-2xl border p-8" style="background:#111; border-color:#222;">
+  <div class="rounded-2xl border p-8" style="background:#0d0d1a; border-color:#1a1a2e;">
     <form method="POST" action="{% url 'edit_profile' current_user.username %}" class="space-y-6">
       {% csrf_token %}
 
@@ -21,10 +21,10 @@
         {% if current_user.avatar %}
           <img src="{{ current_user.avatar }}" alt="avatar"
                class="w-16 h-16 rounded-full object-cover border"
-               style="border-color:rgba(201,168,76,0.4);" />
+               style="border-color:rgba(0,102,255,0.4);" />
         {% else %}
           <div class="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold"
-               style="background: linear-gradient(135deg, #c9a84c, #a07030); color:#0a0a0a;">
+               style="background: linear-gradient(135deg, #0066ff, #0044cc); color:#ffffff;">
             {{ current_user.username|first|upper }}
           </div>
         {% endif %}

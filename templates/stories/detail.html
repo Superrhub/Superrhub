@@ -16,7 +16,7 @@
   <!-- Cover image centered -->
   <div class="absolute inset-0 flex items-center justify-center gap-8 px-4">
     <div class="w-28 h-40 rounded-lg shadow-2xl border overflow-hidden flex-shrink-0"
-         style="border-color: rgba(201,168,76,0.3);">
+         style="border-color: rgba(0,102,255,0.3);">
       {% if story.cover_image %}
         <img src="{{ story.cover_image }}" alt="{{ story.title }}" class="w-full h-full object-cover" />
       {% else %}
@@ -53,7 +53,7 @@
 
     <h1 class="text-3xl sm:text-4xl font-bold text-white font-serif mb-2">{{ story.title }}</h1>
     <a href="{% url 'profile' story.author_username %}"
-       class="text-gold-500 hover:text-gold-300 font-medium transition-colors">
+       class="text-blue-500 hover:text-blue-300 font-medium transition-colors">
       by {{ story.author_username }}
     </a>
 
@@ -125,7 +125,7 @@
                 <!-- Locked chapter -->
                 <a href="{% url 'initiate_payment' story.id %}"
                    class="flex items-center gap-4 p-4 rounded-xl border transition-all group"
-                   style="background:#0d0d0d; border-color:#1a1a1a; opacity:0.7;">
+                   style="background:#080810; border-color:#1a1a1a; opacity:0.7;">
                   <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
                        style="background:#1a1a1a; color:#555;">
                     🔒
@@ -134,26 +134,26 @@
                     <p class="text-gray-600 text-sm font-medium truncate">{{ chapter.title }}</p>
                     <p class="text-gray-700 text-xs">Premium — unlock for ₦{{ story.price }}</p>
                   </div>
-                  <span class="text-gold-600 text-xs">Unlock &rarr;</span>
+                  <span class="text-blue-400 text-xs">Unlock &rarr;</span>
                 </a>
               {% else %}
                 <!-- Free/unlocked chapter -->
                 <a href="{% url 'reader' story.id chapter.chapter_number %}"
                    class="flex items-center gap-4 p-4 rounded-xl border transition-all group"
-                   style="background:#111; border-color:#222;"
-                   onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'; this.style.background='rgba(201,168,76,0.05)';"
+                   style="background:#0d0d1a; border-color:#1a1a2e;"
+                   onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'; this.style.background='rgba(0,102,255,0.05)';"
                    onmouseout="this.style.borderColor='#222'; this.style.background='#111';">
                   <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
-                       style="background:rgba(201,168,76,0.1); color:#c9a84c;">
+                       style="background:rgba(0,102,255,0.1); color:#0066ff;">
                     {{ chapter.chapter_number }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm font-medium truncate group-hover:text-gold-400 transition-colors">
+                    <p class="text-white text-sm font-medium truncate group-hover:text-blue-400 transition-colors">
                       {{ chapter.title }}
                     </p>
                     <p class="text-gray-600 text-xs">{{ chapter.created_at|date:"M d, Y" }}</p>
                   </div>
-                  <span class="text-gray-600 text-sm group-hover:text-gold-500 transition-colors">Read &rarr;</span>
+                  <span class="text-gray-600 text-sm group-hover:text-blue-500 transition-colors">Read &rarr;</span>
                 </a>
               {% endif %}
             {% endfor %}

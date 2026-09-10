@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 py-16"
-     style="background: radial-gradient(ellipse at center, #120d00 0%, #0a0a0a 70%);">
+     style="background: radial-gradient(ellipse at center, #000d1a 0%, #0a0a0a 70%);">
 
   <div class="w-full max-w-md">
 
@@ -11,14 +11,14 @@
     <div class="text-center mb-8">
       <a href="{% url 'home' %}" class="inline-flex items-center gap-2 mb-4">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center font-serif font-bold text-dark-600 text-xl"
-             style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
+             style="background: linear-gradient(135deg, #60a5fa, #0066ff);">S</div>
       </a>
       <h1 class="text-2xl font-bold text-white font-serif">Join SuperHub</h1>
       <p class="text-gray-500 text-sm mt-1">Start reading and writing today — it's free</p>
     </div>
 
     <!-- Card -->
-    <div class="rounded-2xl border p-8" style="background:#111; border-color:#222;">
+    <div class="rounded-2xl border p-8" style="background:#0d0d1a; border-color:#1a1a2e;">
 
       {% if form.non_field_errors %}
         <div class="msg-error px-4 py-3 rounded-lg mb-5 text-sm">
@@ -80,7 +80,7 @@
 
       <p class="text-center text-sm text-gray-500 mt-6">
         Already have an account?
-        <a href="{% url 'login' %}" class="text-gold-500 hover:text-gold-300 font-medium transition-colors">
+        <a href="{% url 'login' %}" class="text-blue-500 hover:text-blue-300 font-medium transition-colors">
           Log in
         </a>
       </p>
