@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, DateTimeField, BooleanField, FloatField
+from mongoengine import Document, StringField, DateTimeField, BooleanField, FloatField, IntField
 from datetime import datetime
 
 
