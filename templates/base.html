@@ -21,21 +21,21 @@
       theme: {
         extend: {
           colors: {
-            gold: {
-              300: '#f0d070',
-              400: '#e8c040',
-              500: '#c9a84c',
-              600: '#a07030',
-              700: '#7a5020',
+            blue: {
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#0088ff',
+              600: '#0066ff',
+              700: '#0044cc',
             },
             dark: {
-              50:  '#2a2a2a',
-              100: '#1e1e1e',
-              200: '#181818',
-              300: '#141414',
-              400: '#111111',
-              500: '#0d0d0d',
-              600: '#0a0a0a',
+              50:  '#1e1e32',
+              100: '#16162a',
+              200: '#121220',
+              300: '#0e0e1a',
+              400: '#0d0d1a',
+              500: '#0a0a14',
+              600: '#080810',
             }
           },
           fontFamily: {
@@ -60,15 +60,20 @@
 <body class="bg-dark-600 text-gray-200 min-h-screen flex flex-col">
 
   <!-- ===== NAVBAR ===== -->
-  <nav class="sticky top-0 z-50 bg-dark-500 border-b border-dark-50" style="background:#0d0d0d;">
+  <nav class="sticky top-0 z-50 border-b" style="background:#080810; border-color:#1a1a2e;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
 
         <!-- Logo -->
         <a href="{% url 'home' %}" class="flex items-center gap-2 flex-shrink-0">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center font-serif font-bold text-dark-600 text-lg"
-               style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
-          <span class="text-white font-bold text-xl tracking-tight">Super<span class="gold-text">Hub</span></span>
+          {% load static %}
+          <img src="{% static 'images/logo.png' %}"
+               alt="SuperRHub"
+               class="h-10 w-auto"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="w-9 h-9 rounded-lg items-center justify-center font-bold text-white text-lg hidden"
+               style="background: linear-gradient(135deg, #0088ff, #0044cc); display:none;">SR</div>
+          <span class="text-white font-bold text-xl tracking-tight ml-1">Super<span class="gold-text">RHub</span></span>
         </a>
 
         <!-- Desktop Nav Links -->
@@ -110,8 +115,8 @@
             <!-- User dropdown -->
             <div class="relative group">
               <button class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-dark-50">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-dark-600 font-bold text-sm"
-                     style="background: linear-gradient(135deg, #f0d070, #c9a84c);">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                     style="background: linear-gradient(135deg, #0088ff, #0044cc);">
                   {{ current_user.username|first|upper }}
                 </div>
                 <span class="font-medium">{{ current_user.username }}</span>
@@ -120,8 +125,9 @@
                 </svg>
               </button>
               <!-- Dropdown -->
-              <div class="absolute right-0 mt-1 w-48 bg-dark-100 border border-dark-50 rounded-xl shadow-2xl
-                          opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div class="absolute right-0 mt-1 w-48 border rounded-xl shadow-2xl
+                          opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+                   style="background:#0d0d1a; border-color:#1a1a2e;">
                 <div class="py-1">
                   <a href="{% url 'profile' current_user.username %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-dark-50 transition-colors">
@@ -248,14 +254,15 @@
   </div>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="border-t border-dark-50 mt-16" style="background:#0d0d0d;">
+  <footer class="border-t mt-16" style="background:#080810; border-color:#1a1a2e;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="flex flex-col md:flex-row items-center justify-between gap-6">
         <!-- Brand -->
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center font-serif font-bold text-dark-600 text-base"
-               style="background: linear-gradient(135deg, #f0d070, #c9a84c);">S</div>
-          <span class="text-white font-bold text-lg">Super<span class="gold-text">Hub</span></span>
+          {% load static %}
+          <img src="{% static 'images/logo.png' %}" alt="SuperRHub" class="h-8 w-auto"
+               onerror="this.style.display='none';" />
+          <span class="text-white font-bold text-lg">Super<span class="gold-text">RHub</span></span>
         </div>
         <!-- Links -->
         <div class="flex items-center gap-6 text-sm text-gray-500">
@@ -272,7 +279,7 @@
         </p>
       </div>
       <div class="mt-6 text-center text-xs text-gray-700">
-        Featuring <span class="text-gold-500">My Jannah</span> by Muhammad Mubarak Ahmed
+        SuperRHub — Books • Stories • More
       </div>
     </div>
   </footer>
@@ -319,7 +326,7 @@
     <a href="{% url 'profile' current_user.username %}" class="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-colors
        {% if request.resolver_match.url_name == 'profile' %}text-gold-500{% else %}text-gray-500 hover:text-gray-300{% endif %}">
       <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-           style="background:linear-gradient(135deg,#c9a84c,#a07030); color:#0a0a0a;">
+           style="background:linear-gradient(135deg,#0088ff,#0044cc); color:#fff;">
         {{ current_user.username|first|upper }}
       </div>
       <span class="text-xs font-medium">Profile</span>
