@@ -276,3 +276,17 @@ def unread_count(request):
         recipient_id=str(current_user.id), is_read=False
     ).count()
     return JsonResponse({'count': count})
+
+
+def continue_reading_view(request):
+    current_user = get_current_user(request)
+    if not current_user:
+        return redirect('login')
+    from .models import ReadingProgress
+    progress_list = list(
+        ReadingProgress.objects(user_id=str(current_user.id)).order_by('-updated_at')[:20]
+    )
+    return render(request, 'interactions/continue_reading.html', {
+        'progress_list': progress_list,
+        'current_user': current_user,
+    })

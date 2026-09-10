@@ -135,6 +135,28 @@ def reader_view(request, story_id, chapter_number):
     prev_num = chapter_number - 1 if chapter_number > 1 else None
     next_num = chapter_number + 1 if chapter_number < total_chapters else None
 
+    # Save reading progress
+    if current_user:
+        from apps.interactions.models import ReadingProgress
+        progress = ReadingProgress.objects(
+            user_id=str(current_user.id), story_id=story_id
+        ).first()
+        if progress:
+            progress.last_chapter = chapter_number
+            progress.last_chapter_title = chapter.title
+            progress.updated_at = datetime.utcnow()
+            progress.save()
+        else:
+            ReadingProgress(
+                user_id=str(current_user.id),
+                story_id=story_id,
+                story_title=story.title,
+                cover_image=story.cover_image,
+                author_username=story.author_username,
+                last_chapter=chapter_number,
+                last_chapter_title=chapter.title,
+            ).save()
+
     return render(request, 'stories/reader.html', {
         'story': story,
         'chapter': chapter,
@@ -320,3 +342,35 @@ def delete_story_view(request, story_id):
     else:
         messages.error(request, 'Story not found or not authorized.')
     return redirect('my_stories')
+
+
+def leaderboard_view(request):
+    current_user = get_current_user(request)
+    from datetime import timedelta
+    from apps.interactions.models import Comment
+
+    # Top stories this week by views
+    top_stories = list(Story.objects(is_published=True).order_by('-views_count')[:10])
+
+    # Top stories by likes
+    top_liked = list(Story.objects(is_published=True).order_by('-likes_count')[:10])
+
+    # Top writers — aggregate by author
+    from apps.users.models import User
+    writer_stats = {}
+    for story in Story.objects(is_published=True):
+        uid = story.author_username
+        if uid not in writer_stats:
+            writer_stats[uid] = {'username': uid, 'views': 0, 'likes': 0, 'stories': 0}
+        writer_stats[uid]['views'] += story.views_count
+        writer_stats[uid]['likes'] += story.likes_count
+        writer_stats[uid]['stories'] += 1
+
+    top_writers = sorted(writer_stats.values(), key=lambda x: x['views'], reverse=True)[:10]
+
+    return render(request, 'stories/leaderboard.html', {
+        'top_stories': top_stories,
+        'top_liked': top_liked,
+        'top_writers': top_writers,
+        'current_user': current_user,
+    })

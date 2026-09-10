@@ -80,9 +80,9 @@
         <div class="hidden md:flex items-center gap-1">
           <a href="{% url 'home' %}" class="nav-link">Home</a>
           <a href="{% url 'browse' %}" class="nav-link">Browse</a>
+          <a href="{% url 'leaderboard' %}" class="nav-link">🏆 Top</a>
           {% if current_user %}
-            <a href="{% url 'my_stories' %}" class="nav-link">My Stories</a>
-            <a href="{% url 'reading_list' %}" class="nav-link">Reading List</a>
+            <a href="{% url 'continue_reading' %}" class="nav-link">▶ Continue</a>
           {% endif %}
         </div>
 
@@ -148,6 +148,10 @@
                   <a href="{% url 'reading_list' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
                     🔖 Reading List
+                  </a>
+                  <a href="{% url 'continue_reading' %}"
+                     class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">
+                    ▶ Continue Reading
                   </a>
                   <a href="{% url 'notifications' %}"
                      class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:text-white transition-colors">

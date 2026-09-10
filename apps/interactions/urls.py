@@ -11,4 +11,5 @@ urlpatterns = [
     path('verify/<str:story_id>/', views.verify_payment, name='verify_payment'),
     path('notifications/', views.notifications_view, name='notifications'),
     path('notifications/count/', views.unread_count, name='unread_count'),
+    path('continue-reading/', views.continue_reading_view, name='continue_reading'),
 ]

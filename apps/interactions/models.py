@@ -57,3 +57,20 @@ class Notification(Document):
         'collection': 'notifications',
         'indexes': ['recipient_id', 'is_read'],
     }
+
+
+class ReadingProgress(Document):
+    """Tracks which chapter a user left off on."""
+    user_id = StringField(required=True)
+    story_id = StringField(required=True)
+    story_title = StringField(default='')
+    cover_image = StringField(default='')
+    author_username = StringField(default='')
+    last_chapter = IntField(default=1)
+    last_chapter_title = StringField(default='')
+    updated_at = DateTimeField(default=datetime.utcnow)
+
+    meta = {
+        'collection': 'reading_progress',
+        'indexes': ['user_id', ('user_id', 'story_id')],
+    }
