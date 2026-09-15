@@ -25,3 +25,19 @@ def linebreak_tag(value):
         for p in paragraphs if p.strip()
     )
     return mark_safe(html)
+
+
+@register.filter
+def compact_number(value):
+    """Format large numbers: 1000 → 1K, 100000 → 100K, 1000000 → 1M"""
+    try:
+        n = int(value)
+    except (ValueError, TypeError):
+        return value
+    if n >= 1_000_000:
+        result = n / 1_000_000
+        return f'{result:.1f}M'.rstrip('0').rstrip('.') + 'M' if result != int(result) else f'{int(result)}M'
+    if n >= 1_000:
+        result = n / 1_000
+        return f'{result:.1f}K'.rstrip('0').rstrip('.') + 'K' if result != int(result) else f'{int(result)}K'
+    return str(n)

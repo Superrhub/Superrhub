@@ -5,6 +5,8 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('reset-password/<str:token>/', views.reset_password_view, name='reset_password'),
     path('profile/<str:username>/', views.profile_view, name='profile'),
     path('profile/<str:username>/edit/', views.edit_profile_view, name='edit_profile'),
     path('profile/<str:username>/follow/', views.follow_view, name='follow'),
@@ -17,5 +19,8 @@ urlpatterns = [
     path('admin/stories/<str:story_id>/delete/', views.admin_delete_story, name='admin_delete_story'),
     path('admin/comments/', views.admin_comments, name='admin_comments'),
     path('admin/comments/<str:comment_id>/delete/', views.admin_delete_comment, name='admin_delete_comment'),
+    path('admin/reports/', views.admin_reported_comments, name='admin_reported_comments'),
+    path('admin/reports/<str:report_id>/resolve/', views.admin_resolve_report, name='admin_resolve_report'),
+    path('admin/reports/<str:report_id>/delete/', views.admin_delete_reported_comment, name='admin_delete_reported_comment'),
     path('admin/purchases/', views.admin_purchases, name='admin_purchases'),
 ]

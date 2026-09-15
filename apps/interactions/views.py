@@ -290,3 +290,40 @@ def continue_reading_view(request):
         'progress_list': progress_list,
         'current_user': current_user,
     })
+
+
+def report_comment(request, comment_id):
+    """POST — logged-in user reports a comment."""
+    current_user = get_current_user(request)
+    if not current_user:
+        return JsonResponse({'error': 'Login required.'}, status=401)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    from .models import CommentReport
+    reason = request.POST.get('reason', 'other').strip()
+    valid_reasons = ['spam', 'hate', 'inappropriate', 'other']
+    if reason not in valid_reasons:
+        reason = 'other'
+
+    # Prevent duplicate reports from the same user
+    already = CommentReport.objects(
+        comment_id=comment_id,
+        reporter_id=str(current_user.id),
+    ).first()
+    if already:
+        return JsonResponse({'status': 'already_reported'})
+
+    comment = Comment.objects(id=comment_id).first()
+    if not comment:
+        return JsonResponse({'error': 'Comment not found.'}, status=404)
+
+    CommentReport(
+        comment_id=comment_id,
+        comment_text=comment.content,
+        reported_by=current_user.username,
+        reporter_id=str(current_user.id),
+        reason=reason,
+    ).save()
+
+    return JsonResponse({'status': 'reported'})

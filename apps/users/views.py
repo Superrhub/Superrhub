@@ -93,6 +93,107 @@ def logout_view(request):
     return redirect('home')
 
 
+# ── Password Reset ────────────────────────────────────────────────────────────
+
+def forgot_password_view(request):
+    """Step 1 — user enters their email, we send a reset link."""
+    if request.session.get('user_id'):
+        return redirect('home')
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        user = User.objects(email=email).first()
+
+        # Always show success message — don't reveal whether email exists
+        if user and user.is_active:
+            from apps.interactions.models import PasswordResetToken
+            from django.core.mail import send_mail
+            from django.conf import settings
+
+            reset_token = PasswordResetToken.create_for_user(user)
+            reset_url = f"{settings.SITE_URL}/auth/reset-password/{reset_token.token}/"
+
+            subject = 'Reset your SuperHub password'
+            body = f"""Hi {user.username},
+
+You requested a password reset for your SuperHub account.
+
+Click the link below to set a new password. This link expires in 1 hour.
+
+{reset_url}
+
+If you didn't request this, you can safely ignore this email.
+
+— The SuperHub Team
+superrhub.onrender.com
+"""
+            try:
+                send_mail(
+                    subject,
+                    body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+            except Exception:
+                pass  # Log silently; success message still shown for security
+
+        messages.success(
+            request,
+            'If that email is registered, a reset link has been sent. Check your inbox.'
+        )
+        return redirect('forgot_password')
+
+    return render(request, 'auth/forgot_password.html')
+
+
+def reset_password_view(request, token):
+    """Step 2 — user arrives via emailed link, sets a new password."""
+    if request.session.get('user_id'):
+        return redirect('home')
+
+    from apps.interactions.models import PasswordResetToken
+
+    reset_token = PasswordResetToken.objects(token=token).first()
+
+    if not reset_token or not reset_token.is_valid():
+        messages.error(
+            request,
+            'This reset link is invalid or has expired. Please request a new one.'
+        )
+        return redirect('forgot_password')
+
+    error = None
+    if request.method == 'POST':
+        password = request.POST.get('password', '')
+        confirm  = request.POST.get('confirm_password', '')
+
+        if len(password) < 8:
+            error = 'Password must be at least 8 characters.'
+        elif password != confirm:
+            error = 'Passwords do not match.'
+        else:
+            user = User.objects(id=reset_token.user_id).first()
+            if user:
+                user.set_password(password)
+                user.save()
+                reset_token.used = True
+                reset_token.save()
+                messages.success(
+                    request,
+                    'Password updated! You can now log in with your new password.'
+                )
+                return redirect('login')
+            else:
+                messages.error(request, 'Account not found. Please contact support.')
+                return redirect('forgot_password')
+
+    return render(request, 'auth/reset_password.html', {
+        'token': token,
+        'error': error,
+    })
+
+
 def profile_view(request, username):
     profile_user = User.objects(username=username).first()
     if not profile_user:
@@ -153,6 +254,15 @@ def follow_view(request, username):
         if requester_id not in target.followers:
             target.followers.append(requester_id)
         messages.success(request, f'You are now following {username}.')
+
+        # Notify the person being followed
+        from apps.interactions.models import Notification
+        Notification(
+            recipient_id=target_id,
+            sender_username=current_user.username,
+            notif_type='follow',
+            message=f'{current_user.username} started following you.',
+        ).save()
     current_user.save()
     target.save()
     return redirect('profile', username=username)
@@ -266,6 +376,43 @@ def admin_delete_comment(request, comment_id):
         comment.delete()
         messages.success(request, 'Comment deleted.')
     return redirect('admin_comments')
+
+
+@admin_required
+def admin_reported_comments(request):
+    from apps.interactions.models import CommentReport, Comment
+    reports = list(CommentReport.objects(resolved=False).order_by('-created_at')[:100])
+    # Attach comment object to each report for easy display
+    for r in reports:
+        r._comment_obj = Comment.objects(id=r.comment_id).first()
+    return render(request, 'admin/reported_comments.html', {
+        'current_user': get_current_user(request),
+        'reports': reports,
+    })
+
+
+@admin_required
+def admin_resolve_report(request, report_id):
+    from apps.interactions.models import CommentReport
+    report = CommentReport.objects(id=report_id).first()
+    if report:
+        report.resolved = True
+        report.save()
+        messages.success(request, 'Report dismissed.')
+    return redirect('admin_reported_comments')
+
+
+@admin_required
+def admin_delete_reported_comment(request, report_id):
+    from apps.interactions.models import CommentReport, Comment
+    report = CommentReport.objects(id=report_id).first()
+    if report:
+        # Delete the actual comment
+        Comment.objects(id=report.comment_id).delete()
+        # Resolve all reports for this comment
+        CommentReport.objects(comment_id=report.comment_id).update(set__resolved=True)
+        messages.success(request, 'Comment deleted and report resolved.')
+    return redirect('admin_reported_comments')
 
 
 @admin_required

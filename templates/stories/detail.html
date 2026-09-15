@@ -1,6 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}{{ story.title }} — SuperHub{% endblock %}
 
+{% block og_type %}book{% endblock %}
+{% block og_title %}{{ story.title }} by {{ story.author_username }}{% endblock %}
+{% block og_description %}{{ story.description|default:"Read this story on SuperRHub." |truncatechars:200 }}{% endblock %}
+{% block og_image %}{% if story.cover_image %}{{ story.cover_image }}{% else %}https://superrhub.onrender.com/static/images/logo.png{% endif %}{% endblock %}
+{% block og_url %}https://superrhub.onrender.com/stories/{{ story.id }}/{% endblock %}
+{% block twitter_title %}{{ story.title }} by {{ story.author_username }}{% endblock %}
+{% block twitter_description %}{{ story.description|default:"Read this story on SuperRHub."|truncatechars:200 }}{% endblock %}
+{% block twitter_image %}{% if story.cover_image %}{{ story.cover_image }}{% else %}https://superrhub.onrender.com/static/images/logo.png{% endif %}{% endblock %}
+{% block meta_description %}{{ story.description|default:"Read this story on SuperRHub."|truncatechars:160 }}{% endblock %}
+
 {% block content %}
 
 <!-- Cover Hero -->
@@ -56,6 +66,16 @@
        class="text-blue-500 hover:text-blue-300 font-medium transition-colors">
       by {{ story.author_username }}
     </a>
+    {% if author_is_verified %}
+      <span title="Verified account"
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full ml-1 align-middle"
+            style="background:linear-gradient(135deg,#0088ff,#0044cc);">
+        <svg class="w-3 h-3 text-white" fill="none" stroke="white" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </span>
+    {% endif %}
 
     <!-- Stats -->
     <div class="flex flex-wrap items-center gap-5 mt-4 text-sm text-gray-500">
@@ -188,23 +208,33 @@
                 </a>
               {% else %}
                 <!-- Free/unlocked chapter -->
-                <a href="{% url 'reader' story.id chapter.chapter_number %}"
-                   class="flex items-center gap-4 p-4 rounded-xl border transition-all group"
-                   style="background:#0d0d1a; border-color:#1a1a2e;"
-                   onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'; this.style.background='rgba(0,102,255,0.05)';"
-                   onmouseout="this.style.borderColor='#222'; this.style.background='#111';">
-                  <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
-                       style="background:rgba(0,102,255,0.1); color:#0066ff;">
-                    {{ chapter.chapter_number }}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm font-medium truncate group-hover:text-blue-400 transition-colors">
-                      {{ chapter.title }}
-                    </p>
-                    <p class="text-gray-600 text-xs">{{ chapter.created_at|date:"M d, Y" }}</p>
-                  </div>
-                  <span class="text-gray-600 text-sm group-hover:text-blue-500 transition-colors">Read &rarr;</span>
-                </a>
+                <div class="flex items-center gap-2">
+                  <a href="{% url 'reader' story.id chapter.chapter_number %}"
+                     class="flex items-center gap-4 p-4 rounded-xl border transition-all group flex-1"
+                     style="background:#0d0d1a; border-color:#1a1a2e;"
+                     onmouseover="this.style.borderColor='rgba(0,102,255,0.3)'; this.style.background='rgba(0,102,255,0.05)';"
+                     onmouseout="this.style.borderColor='#222'; this.style.background='#111';">
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
+                         style="background:rgba(0,102,255,0.1); color:#0066ff;">
+                      {{ chapter.chapter_number }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-white text-sm font-medium truncate group-hover:text-blue-400 transition-colors">
+                        {{ chapter.title }}
+                      </p>
+                      <p class="text-gray-600 text-xs">{{ chapter.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <span class="text-gray-600 text-sm group-hover:text-blue-500 transition-colors">Read &rarr;</span>
+                  </a>
+                  {% if is_author %}
+                    <a href="{% url 'edit_chapter' story.id chapter.chapter_number %}"
+                       class="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors text-sm"
+                       style="background:rgba(0,102,255,0.08); color:#60a5fa;"
+                       onmouseover="this.style.background='rgba(0,102,255,0.2)';"
+                       onmouseout="this.style.background='rgba(0,102,255,0.08)';"
+                       title="Edit chapter">✏️</a>
+                  {% endif %}
+                </div>
               {% endif %}
             {% endfor %}
           </div>
@@ -229,6 +259,54 @@
     </div>
 
   </div>
+
+  <!-- More by this author -->
+  {% if more_by_author %}
+  <div class="mt-14 pt-10 border-t border-dark-50">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold text-white font-serif">
+        📚 More by
+        <a href="{% url 'profile' story.author_username %}"
+           class="text-blue-500 hover:text-blue-300 transition-colors">
+          {{ story.author_username }}
+        </a>
+      </h2>
+      <a href="{% url 'profile' story.author_username %}"
+         class="text-xs text-gray-500 hover:text-blue-400 transition-colors">
+        View all &rarr;
+      </a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {% for s in more_by_author %}
+        <a href="{% url 'story_detail' s.id %}"
+           class="group rounded-xl border overflow-hidden transition-all"
+           style="background:#0d0d1a; border-color:#1a1a2e;"
+           onmouseover="this.style.borderColor='rgba(0,102,255,0.4)'; this.style.transform='translateY(-2px)';"
+           onmouseout="this.style.borderColor='#1a1a2e'; this.style.transform='translateY(0)';">
+          <!-- Cover -->
+          <div class="aspect-[2/3] overflow-hidden">
+            {% if s.cover_image %}
+              <img src="{{ s.cover_image }}" alt="{{ s.title }}"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            {% else %}
+              <div class="w-full h-full bg-gradient-to-br {{ s.cover_color }} flex items-center justify-center">
+                <span class="text-2xl font-serif font-bold text-white/40">{{ s.title|first|upper }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <!-- Info -->
+          <div class="p-3">
+            <p class="text-white text-xs font-semibold truncate group-hover:text-blue-400 transition-colors leading-snug mb-1">
+              {{ s.title }}
+            </p>
+            <p class="text-gray-600 text-xs">👁 {{ s.views_count }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 
 {% endblock %}

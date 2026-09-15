@@ -43,6 +43,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
+                'apps.users.context_processors.current_user',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -90,6 +91,35 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
+
+# ── Cloudinary — cover image uploads ───────────────────────────────────────
+import cloudinary
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME', ''),
+    api_key    = os.getenv('CLOUDINARY_API_KEY', ''),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET', ''),
+    secure     = True,
+)
+
+# ── Email (password reset) ──────────────────────────────────────────────────
+# Set EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend in production
+# and fill in the SMTP vars in your .env file.
+# In development (DEBUG=True) emails print to the console automatically.
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = os.getenv(
+        'EMAIL_BACKEND',
+        'django.core.mail.backends.smtp.EmailBackend'
+    )
+
+EMAIL_HOST          = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT          = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS       = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER     = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL  = os.getenv('DEFAULT_FROM_EMAIL', 'SuperHub <noreply@superrhub.com>')
+SITE_URL            = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

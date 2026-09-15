@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Edit Chapter {{ chapter.chapter_number }} — {{ story.title }} — SuperHub{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-6">
+    <a href="{% url 'story_detail' story.id %}" class="text-blue-500 hover:text-blue-300 text-sm mb-2 inline-block">
+      &larr; {{ story.title }}
+    </a>
+    <h1 class="text-2xl font-bold text-white font-serif">
+      Edit Chapter {{ chapter.chapter_number }}
+    </h1>
+    <p class="text-gray-500 text-sm mt-1">{{ chapter.title }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+    <!-- Edit Form -->
+    <div class="lg:col-span-3">
+      <div class="rounded-2xl border p-6" style="background:#0d0d1a; border-color:#1a1a2e;">
+        <form method="POST" action="{% url 'edit_chapter' story.id chapter.chapter_number %}" class="space-y-5">
+          {% csrf_token %}
+
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-1.5">Chapter Title *</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <p class="text-red-400 text-xs mt-1">{{ form.title.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-1.5">Content *</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+              <p class="text-red-400 text-xs mt-1">{{ form.content.errors.0 }}</p>
+            {% endif %}
+            <p class="text-gray-600 text-xs mt-1">Use blank lines to separate paragraphs.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button type="submit" class="btn-primary px-6 py-3">
+              💾 Save Changes
+            </button>
+            <a href="{% url 'story_detail' story.id %}" class="btn-secondary px-5 py-3">
+              Cancel
+            </a>
+
+            <!-- Delete — separate POST form -->
+            <form method="POST"
+                  action="{% url 'delete_chapter' story.id chapter.chapter_number %}"
+                  onsubmit="return confirm('Delete Chapter {{ chapter.chapter_number }}: {{ chapter.title|escapejs }}?\n\nThis cannot be undone. Remaining chapters will be re-numbered.');"
+                  class="inline">
+              {% csrf_token %}
+              <button type="submit" class="btn-danger px-5 py-3">
+                🗑 Delete Chapter
+              </button>
+            </form>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- All chapters sidebar -->
+    <div class="lg:col-span-1">
+      <div class="rounded-2xl border p-4 sticky top-20" style="background:#0d0d1a; border-color:#1a1a2e;">
+        <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">
+          Chapters ({{ story.chapters_count }})
+        </h3>
+        <div class="space-y-2 max-h-96 overflow-y-auto">
+          {% for ch in story.chapters %}
+            <a href="{% url 'edit_chapter' story.id ch.chapter_number %}"
+               class="flex items-center gap-2 p-2 rounded-lg transition-colors text-sm
+                      {% if ch.chapter_number == chapter.chapter_number %}ring-1 ring-blue-500{% endif %}"
+               style="{% if ch.chapter_number == chapter.chapter_number %}background:rgba(0,102,255,0.1){% else %}background:transparent{% endif %}"
+               onmouseover="this.style.background='rgba(0,102,255,0.08)';"
+               onmouseout="this.style.background='{% if ch.chapter_number == chapter.chapter_number %}rgba(0,102,255,0.1){% else %}transparent{% endif %}';">
+              <span class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold flex-shrink-0"
+                    style="background:rgba(0,102,255,0.15); color:#0066ff;">
+                {{ ch.chapter_number }}
+              </span>
+              <span class="text-gray-400 truncate text-xs">{{ ch.title }}</span>
+            </a>
+          {% endfor %}
+        </div>
+        <div class="mt-3 pt-3 border-t border-dark-50">
+          <a href="{% url 'add_chapter' story.id %}"
+             class="flex items-center gap-2 text-blue-500 hover:text-blue-300 text-xs font-medium transition-colors">
+            ➕ Add New Chapter
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

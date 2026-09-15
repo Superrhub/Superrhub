@@ -48,6 +48,10 @@
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'comments' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
         💬 Comments
       </a>
+      <a href="{% url 'admin_reported_comments' %}"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'report' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
+        🚩 Reports
+      </a>
       <a href="{% url 'admin_purchases' %}"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors {% if 'purchases' in request.resolver_match.url_name %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %}">
         💰 Revenue

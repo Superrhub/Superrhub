@@ -36,9 +36,58 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-400 mb-1.5">Cover Image URL</label>
-        {{ form.cover_image }}
-        <p class="text-gray-600 text-xs mt-1">Paste a direct image URL. Leave blank for auto-generated cover.</p>
+        <label class="block text-sm font-medium text-gray-400 mb-1.5">Cover Image</label>
+
+        <!-- Upload area -->
+        <div id="cover-upload-area"
+             class="relative rounded-xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 py-6"
+             style="border-color:#1e1e35; background:#08081a;"
+             onclick="document.getElementById('cover-file-input').click()"
+             ondragover="event.preventDefault(); this.style.borderColor='#0066ff';"
+             ondragleave="this.style.borderColor='#1e1e35';"
+             ondrop="handleCoverDrop(event)">
+
+          <!-- Preview (hidden until image chosen) -->
+          <img id="cover-preview" src="" alt="Cover preview"
+               class="hidden w-24 h-36 object-cover rounded-lg shadow-lg mb-1">
+
+          <div id="cover-upload-prompt" class="flex flex-col items-center gap-1 text-center">
+            <span class="text-2xl">🖼</span>
+            <p class="text-sm text-gray-400 font-medium">Click or drag to upload cover</p>
+            <p class="text-xs text-gray-600">JPEG, PNG, WebP — max 5 MB</p>
+          </div>
+
+          <div id="cover-uploading" class="hidden flex-col items-center gap-2">
+            <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs text-gray-500">Uploading…</p>
+          </div>
+        </div>
+
+        <input type="file" id="cover-file-input" accept="image/*" class="hidden"
+               onchange="uploadCoverFile(this.files[0])">
+
+        <!-- Hidden URL field — populated by JS after upload -->
+        <input type="hidden" name="cover_image" id="cover-image-url"
+               value="{{ form.cover_image.value|default:'' }}">
+
+        <!-- Status / error message -->
+        <p id="cover-status" class="text-xs mt-1 text-gray-600"></p>
+
+        <!-- If already has a cover, show it -->
+        {% if form.cover_image.value %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              showCoverPreview("{{ form.cover_image.value|escapejs }}");
+            });
+          </script>
+        {% endif %}
+
+        <p class="text-gray-600 text-xs mt-1">Or paste a URL directly:
+          <input type="text" id="cover-url-input" placeholder="https://..."
+                 class="form-input mt-1 text-xs"
+                 value="{{ form.cover_image.value|default:'' }}"
+                 oninput="document.getElementById('cover-image-url').value=this.value; showCoverPreview(this.value);">
+        </p>
       </div>
 
       <div class="flex flex-col gap-3 pt-2">
@@ -52,6 +101,49 @@
         </label>
       </div>
 
+      <!-- Premium Settings -->
+      <div class="rounded-xl border p-5 space-y-4" style="background:#08081a; border-color:#1e1e35;">
+        <div class="flex items-start gap-3">
+          <div class="pt-0.5">
+            <input type="checkbox" name="is_premium" id="id_is_premium"
+                   {% if form.is_premium.value %}checked{% endif %}
+                   class="w-4 h-4 rounded accent-blue-500 cursor-pointer"
+                   onchange="togglePremiumFields(this.checked)">
+          </div>
+          <div>
+            <label for="id_is_premium" class="text-sm font-semibold text-yellow-400 cursor-pointer">
+              💰 Premium Story
+            </label>
+            <p class="text-gray-500 text-xs mt-0.5">Readers must pay after the free chapters to continue reading.</p>
+          </div>
+        </div>
+
+        <div id="premium-fields" class="space-y-4 {% if not form.is_premium.value %}hidden{% endif %}">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">
+                Price (₦) <span class="text-gray-600 font-normal text-xs">Min ₦100</span>
+              </label>
+              {{ form.price }}
+              {% if form.price.errors %}
+                <p class="text-red-400 text-xs mt-1">{{ form.price.errors.0 }}</p>
+              {% endif %}
+              <p class="text-gray-600 text-xs mt-1">What readers pay to unlock the full story.</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">
+                Free Chapters <span class="text-gray-600 font-normal text-xs">0 = full paywall</span>
+              </label>
+              {{ form.free_chapters }}
+              {% if form.free_chapters.errors %}
+                <p class="text-red-400 text-xs mt-1">{{ form.free_chapters.errors.0 }}</p>
+              {% endif %}
+              <p class="text-gray-600 text-xs mt-1">Chapters readers can read for free before paying.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="flex gap-3 pt-2">
         <button type="submit" class="btn-primary px-8 py-3">
           Create Story &rarr;
@@ -62,4 +154,73 @@
   </div>
 
 </div>
+
+{% block extra_js %}
+<script>
+function togglePremiumFields(show) {
+  document.getElementById('premium-fields').classList.toggle('hidden', !show);
+}
+
+/* ── Cover image upload ── */
+const UPLOAD_URL = "{% url 'upload_cover' %}";
+const CSRF = "{{ csrf_token }}";
+
+function showCoverPreview(url) {
+  if (!url) return;
+  const img = document.getElementById('cover-preview');
+  const prompt = document.getElementById('cover-upload-prompt');
+  img.src = url;
+  img.classList.remove('hidden');
+  prompt.classList.add('hidden');
+  document.getElementById('cover-upload-area').style.borderColor = '#0066ff';
+}
+
+function setStatus(msg, isError) {
+  const el = document.getElementById('cover-status');
+  el.textContent = msg;
+  el.style.color = isError ? '#f87171' : '#22c55e';
+}
+
+function uploadCoverFile(file) {
+  if (!file) return;
+  const prompt = document.getElementById('cover-upload-prompt');
+  const uploading = document.getElementById('cover-uploading');
+  prompt.classList.add('hidden');
+  uploading.classList.remove('hidden');
+  uploading.classList.add('flex');
+
+  const fd = new FormData();
+  fd.append('cover_image', file);
+  fd.append('csrfmiddlewaretoken', CSRF);
+
+  fetch(UPLOAD_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      uploading.classList.add('hidden');
+      uploading.classList.remove('flex');
+      if (data.url) {
+        document.getElementById('cover-image-url').value = data.url;
+        document.getElementById('cover-url-input').value = data.url;
+        showCoverPreview(data.url);
+        setStatus('✓ Cover uploaded successfully', false);
+      } else {
+        prompt.classList.remove('hidden');
+        setStatus(data.error || 'Upload failed.', true);
+      }
+    })
+    .catch(() => {
+      uploading.classList.add('hidden');
+      uploading.classList.remove('flex');
+      prompt.classList.remove('hidden');
+      setStatus('Upload failed. Check your connection.', true);
+    });
+}
+
+function handleCoverDrop(event) {
+  event.preventDefault();
+  document.getElementById('cover-upload-area').style.borderColor = '#1e1e35';
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) uploadCoverFile(file);
+}
+</script>
 {% endblock %}

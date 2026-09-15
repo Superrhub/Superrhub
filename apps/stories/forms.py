@@ -46,6 +46,36 @@ class StoryForm(forms.Form):
         required=False,
         label='Mark as completed'
     )
+    is_premium = forms.BooleanField(
+        required=False,
+        label='Premium story (readers must pay to access after free chapters)'
+    )
+    price = forms.IntegerField(
+        required=False,
+        min_value=100,
+        max_value=50000,
+        initial=2500,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input',
+            'placeholder': '2500',
+            'min': '100',
+            'max': '50000',
+        }),
+        help_text='Price in Naira (₦). Minimum ₦100.'
+    )
+    free_chapters = forms.IntegerField(
+        required=False,
+        min_value=0,
+        max_value=50,
+        initial=3,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input',
+            'placeholder': '3',
+            'min': '0',
+            'max': '50',
+        }),
+        help_text='Number of chapters readers can read for free before the paywall.'
+    )
 
 
 class ChapterForm(forms.Form):

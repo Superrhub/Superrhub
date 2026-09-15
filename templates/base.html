@@ -6,6 +6,21 @@
   <title>{% block title %}SuperRHub — Books • Stories • More{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Discover and publish stories on SuperRHub. Books • Stories • More.{% endblock %}" />
 
+  <!-- Open Graph / WhatsApp / Facebook / Twitter -->
+  <meta property="og:type"        content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:site_name"   content="SuperRHub" />
+  <meta property="og:title"       content="{% block og_title %}SuperRHub — Books • Stories • More{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Discover and publish stories on SuperRHub. Books • Stories • More.{% endblock %}" />
+  <meta property="og:image"       content="{% block og_image %}https://superrhub.onrender.com/static/images/logo.png{% endblock %}" />
+  <meta property="og:url"         content="{% block og_url %}https://superrhub.onrender.com{% endblock %}" />
+  <meta property="og:image:width"  content="400" />
+  <meta property="og:image:height" content="600" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="{% block twitter_title %}SuperRHub — Books • Stories • More{% endblock %}" />
+  <meta name="twitter:description" content="{% block twitter_description %}Discover and publish stories on SuperRHub.{% endblock %}" />
+  <meta name="twitter:image"       content="{% block twitter_image %}https://superrhub.onrender.com/static/images/logo.png{% endblock %}" />
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="/static/manifest.json" />
   <meta name="theme-color" content="#0066ff" />
@@ -187,7 +202,7 @@
           {% endif %}
         </div>
 
-        <!-- Mobile: show notification bell + search -->
+        <!-- Mobile: show notification bell + search + hamburger -->
         <div class="md:hidden flex items-center gap-2">
           {% if current_user %}
           <a href="{% url 'notifications' %}" class="relative text-gray-400 p-2">
@@ -201,6 +216,14 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
             </svg>
           </a>
+          <!-- Hamburger button -->
+          <button id="mobile-menu-btn"
+                  onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                  class="text-gray-400 hover:text-white p-2 rounded-lg transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -215,7 +238,11 @@
             <a href="{% url 'dashboard' %}" class="nav-link px-2 py-2">📊 Dashboard</a>
             <a href="{% url 'profile' current_user.username %}" class="nav-link px-2 py-2">My Profile</a>
             <a href="{% url 'create_story' %}" class="btn-primary mt-2 justify-center">✏️ Write a Story</a>
-            <a href="{% url 'logout' %}" class="text-red-400 text-sm px-2 py-2 hover:text-red-300">Logout</a>
+            <hr class="my-2" style="border-color:#1a1a2e;">
+            <a href="{% url 'logout' %}"
+               class="flex items-center gap-2 px-2 py-2 text-sm text-red-400 hover:text-red-300 transition-colors font-medium">
+              🚪 Sign Out
+            </a>
           {% else %}
             <a href="{% url 'login' %}" class="nav-link px-2 py-2">Log in</a>
             <a href="{% url 'register' %}" class="btn-primary mt-2 justify-center">Join Free</a>

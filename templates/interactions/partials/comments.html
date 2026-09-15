@@ -58,15 +58,23 @@
               <span class="text-xs text-gray-600">{{ comment.created_at|timesince }} ago</span>
             </div>
             <p class="text-gray-400 text-sm leading-relaxed">{{ comment.content }}</p>
-            {% if current_user and comment.user_id == current_user.id|stringformat:"s" %}
-              <form action="{% url 'delete_comment' comment.id %}" method="POST" class="inline">
-                {% csrf_token %}
-                <button type="submit"
-                        class="text-xs text-red-500 hover:text-red-400 transition-colors mt-1">
-                  Delete
+            <div class="flex items-center gap-3 mt-1">
+              {% if current_user and comment.user_id == current_user.id|stringformat:"s" %}
+                <form action="{% url 'delete_comment' comment.id %}" method="POST" class="inline">
+                  {% csrf_token %}
+                  <button type="submit" class="text-xs text-red-500 hover:text-red-400 transition-colors">
+                    Delete
+                  </button>
+                </form>
+              {% endif %}
+              {% if current_user and comment.user_id != current_user.id|stringformat:"s" %}
+                <button onclick="reportComment('{{ comment.id }}')"
+                        id="report-btn-{{ comment.id }}"
+                        class="text-xs text-gray-600 hover:text-orange-400 transition-colors">
+                  🚩 Report
                 </button>
-              </form>
-            {% endif %}
+              {% endif %}
+            </div>
           </div>
         </div>
       {% endfor %}
@@ -77,3 +85,89 @@
     </div>
   {% endif %}
 </div>
+
+<!-- Report Comment Modal -->
+<div id="report-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+     style="background:rgba(0,0,0,0.75);"
+     onclick="if(event.target===this) closeReportModal()">
+  <div class="w-full max-w-sm rounded-2xl border p-6" style="background:#0d0d1a; border-color:#1a1a2e;">
+    <h3 class="text-white font-semibold mb-4">🚩 Report Comment</h3>
+    <p class="text-gray-500 text-sm mb-4">Why are you reporting this comment?</p>
+    <div class="space-y-2 mb-5">
+      {% for value, label in report_reasons %}
+        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-100 transition-colors">
+          <input type="radio" name="report-reason" value="{{ value }}"
+                 class="accent-orange-500"
+                 {% if forloop.first %}checked{% endif %}>
+          <span class="text-sm text-gray-300">{{ label }}</span>
+        </label>
+      {% empty %}
+        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-100 transition-colors">
+          <input type="radio" name="report-reason" value="spam" class="accent-orange-500" checked>
+          <span class="text-sm text-gray-300">Spam</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-100 transition-colors">
+          <input type="radio" name="report-reason" value="hate" class="accent-orange-500">
+          <span class="text-sm text-gray-300">Hate speech or harassment</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-100 transition-colors">
+          <input type="radio" name="report-reason" value="inappropriate" class="accent-orange-500">
+          <span class="text-sm text-gray-300">Inappropriate content</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-dark-100 transition-colors">
+          <input type="radio" name="report-reason" value="other" class="accent-orange-500">
+          <span class="text-sm text-gray-300">Other</span>
+        </label>
+      {% endfor %}
+    </div>
+    <div class="flex gap-3">
+      <button onclick="submitReport()"
+              class="flex-1 py-2 rounded-lg text-sm font-semibold text-white transition-colors"
+              style="background:#ea580c;">
+        Submit Report
+      </button>
+      <button onclick="closeReportModal()"
+              class="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-300 border border-gray-700 transition-colors">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let _reportCommentId = null;
+
+function reportComment(commentId) {
+  _reportCommentId = commentId;
+  document.getElementById('report-modal').classList.remove('hidden');
+}
+
+function closeReportModal() {
+  document.getElementById('report-modal').classList.add('hidden');
+  _reportCommentId = null;
+}
+
+function submitReport() {
+  if (!_reportCommentId) return;
+  const reason = document.querySelector('input[name="report-reason"]:checked')?.value || 'other';
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+  fetch(`/interactions/comment/${_reportCommentId}/report/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken },
+    body: `reason=${reason}`,
+  })
+  .then(r => r.json())
+  .then(data => {
+    closeReportModal();
+    const btn = document.getElementById(`report-btn-${_reportCommentId}`);
+    if (btn) {
+      btn.textContent = '✓ Reported';
+      btn.disabled = true;
+      btn.style.color = '#f97316';
+    }
+  })
+  .catch(() => closeReportModal());
+}
+</script>

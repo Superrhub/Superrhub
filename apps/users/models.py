@@ -17,6 +17,7 @@ class User(Document):
     following = ListField(StringField())
     created_at = DateTimeField(default=datetime.utcnow)
     is_active = BooleanField(default=True)
+    is_verified = BooleanField(default=False)  # Blue tick ✓
 
     meta = {'collection': 'users'}
 

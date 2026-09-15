@@ -1,10 +1,43 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from datetime import datetime
 
 from .models import Story, Chapter, GENRES
 from .forms import StoryForm, ChapterForm
 from apps.users.views import get_current_user, login_required_mongo
+
+
+@login_required_mongo
+def upload_cover_image(request):
+    """AJAX endpoint — uploads a cover image to Cloudinary, returns the URL."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+    file = request.FILES.get('cover_image')
+    if not file:
+        return JsonResponse({'error': 'No file provided.'}, status=400)
+
+    # Basic validation
+    allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if file.content_type not in allowed_types:
+        return JsonResponse({'error': 'Only JPEG, PNG, WebP or GIF allowed.'}, status=400)
+    if file.size > 5 * 1024 * 1024:  # 5 MB limit
+        return JsonResponse({'error': 'Image must be under 5 MB.'}, status=400)
+
+    try:
+        import cloudinary.uploader
+        result = cloudinary.uploader.upload(
+            file,
+            folder='superhub/covers',
+            transformation=[
+                {'width': 400, 'height': 600, 'crop': 'fill', 'gravity': 'auto'},
+                {'quality': 'auto', 'fetch_format': 'auto'},
+            ],
+        )
+        return JsonResponse({'url': result['secure_url']})
+    except Exception as e:
+        return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
 
 
 def home_view(request):
@@ -93,6 +126,20 @@ def story_detail_view(request, story_id):
     comments = list(Comment.objects(story_id=story_id).order_by('created_at'))
     is_author = current_user and story.author_id == str(current_user.id)
 
+    # More by this author (exclude current story, max 4)
+    more_by_author = list(
+        Story.objects(
+            author_id=story.author_id,
+            is_published=True,
+            id__ne=story.id,
+        ).order_by('-views_count')[:4]
+    )
+
+    # Author verified status
+    from apps.users.models import User as UserModel
+    author_user = UserModel.objects(id=story.author_id).first()
+    author_is_verified = author_user.is_verified if author_user else False
+
     return render(request, 'stories/detail.html', {
         'story': story,
         'current_user': current_user,
@@ -101,6 +148,8 @@ def story_detail_view(request, story_id):
         'is_purchased': is_purchased,
         'comments': comments,
         'is_author': is_author,
+        'more_by_author': more_by_author,
+        'author_is_verified': author_is_verified,
     })
 
 
@@ -184,6 +233,9 @@ def create_story_view(request):
             author_username=current_user.username,
             is_published=data.get('is_published', False),
             is_completed=data.get('is_completed', False),
+            is_premium=data.get('is_premium', False),
+            price=data.get('price') or 2500,
+            free_chapters=data.get('free_chapters') if data.get('free_chapters') is not None else 3,
         )
         story.save()
         messages.success(request, f'"{story.title}" created! Now add your first chapter.')
@@ -218,6 +270,9 @@ def edit_story_view(request, story_id):
             story.cover_image = data.get('cover_image', '')
             story.is_published = data.get('is_published', False)
             story.is_completed = data.get('is_completed', False)
+            story.is_premium = data.get('is_premium', False)
+            story.price = data.get('price') or 2500
+            story.free_chapters = data.get('free_chapters') if data.get('free_chapters') is not None else 3
             story.updated_at = datetime.utcnow()
             story.save()
             messages.success(request, 'Story updated successfully.')
@@ -231,6 +286,9 @@ def edit_story_view(request, story_id):
             'cover_image': story.cover_image,
             'is_published': story.is_published,
             'is_completed': story.is_completed,
+            'is_premium': story.is_premium,
+            'price': story.price,
+            'free_chapters': story.free_chapters,
         }
         form = StoryForm(initial=initial)
 
@@ -342,6 +400,86 @@ def delete_story_view(request, story_id):
     else:
         messages.error(request, 'Story not found or not authorized.')
     return redirect('my_stories')
+
+
+@login_required_mongo
+def edit_chapter_view(request, story_id, chapter_number):
+    """Edit an existing chapter — author only."""
+    current_user = get_current_user(request)
+    try:
+        story = Story.objects(id=story_id).first()
+    except Exception:
+        story = None
+
+    if not story or story.author_id != str(current_user.id):
+        messages.error(request, 'Not authorized.')
+        return redirect('home')
+
+    # Find the chapter
+    chapter = None
+    for ch in story.chapters:
+        if ch.chapter_number == chapter_number:
+            chapter = ch
+            break
+
+    if not chapter:
+        messages.error(request, 'Chapter not found.')
+        return redirect('story_detail', story_id=story_id)
+
+    if request.method == 'POST':
+        form = ChapterForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            chapter.title   = data['title']
+            chapter.content = data['content']
+            story.updated_at = datetime.utcnow()
+            story.save()
+            messages.success(request, f'Chapter {chapter_number} updated.')
+            return redirect('story_detail', story_id=story_id)
+    else:
+        form = ChapterForm(initial={
+            'title':   chapter.title,
+            'content': chapter.content,
+        })
+
+    return render(request, 'stories/edit_chapter.html', {
+        'form':           form,
+        'story':          story,
+        'chapter':        chapter,
+        'current_user':   current_user,
+    })
+
+
+@login_required_mongo
+def delete_chapter_view(request, story_id, chapter_number):
+    """Delete a chapter — author only, POST required."""
+    current_user = get_current_user(request)
+    if request.method != 'POST':
+        return redirect('story_detail', story_id=story_id)
+
+    try:
+        story = Story.objects(id=story_id).first()
+    except Exception:
+        story = None
+
+    if not story or story.author_id != str(current_user.id):
+        messages.error(request, 'Not authorized.')
+        return redirect('home')
+
+    original_len = len(story.chapters)
+    story.chapters = [ch for ch in story.chapters if ch.chapter_number != chapter_number]
+
+    if len(story.chapters) < original_len:
+        # Re-number remaining chapters sequentially
+        for i, ch in enumerate(story.chapters, 1):
+            ch.chapter_number = i
+        story.updated_at = datetime.utcnow()
+        story.save()
+        messages.success(request, f'Chapter {chapter_number} deleted. Remaining chapters re-numbered.')
+    else:
+        messages.error(request, 'Chapter not found.')
+
+    return redirect('story_detail', story_id=story_id)
 
 
 def leaderboard_view(request):
