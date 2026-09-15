@@ -50,15 +50,31 @@ def register_view(request):
         elif User.objects(email=data['email']).first():
             form.add_error('email', 'This email is already registered.')
         else:
-            # Save form data in session, redirect to pay ₦500 before account is created
-            request.session['pending_registration'] = {
-                'username': data['username'],
-                'email':    data['email'],
-                'password': data['password'],
-                'bio':      data.get('bio', ''),
-                'role':     data.get('role', 'reader'),
-            }
-            return redirect('pay_to_register')
+            # Writers pay ₦500 before account is created. Readers are free.
+            if data.get('role') == 'writer':
+                request.session['pending_registration'] = {
+                    'username': data['username'],
+                    'email':    data['email'],
+                    'password': data['password'],
+                    'bio':      data.get('bio', ''),
+                    'role':     'writer',
+                }
+                return redirect('pay_to_register')
+            else:
+                # Reader — create account immediately, no payment
+                user = User(
+                    username=data['username'],
+                    email=data['email'],
+                    bio=data.get('bio', ''),
+                    role='reader',
+                )
+                user.set_password(data['password'])
+                user.save()
+                request.session['user_id']  = str(user.id)
+                request.session['username'] = user.username
+                request.session['role']     = user.role
+                messages.success(request, f'Welcome to SuperRHub, {user.username}! 🎉')
+                return redirect('home')
     return render(request, 'auth/register.html', {'form': form})
 
 
