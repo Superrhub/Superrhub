@@ -70,6 +70,12 @@
   <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
 
   {% block extra_head %}{% endblock %}
+  <style>
+    /* Hide mobile menu on desktop regardless of hidden class */
+    @media (min-width: 768px) {
+      #mobile-menu { display: none !important; }
+    }
+  </style>
 </head>
 
 <body class="bg-dark-600 text-gray-200 min-h-screen flex flex-col">
@@ -218,7 +224,6 @@
           </a>
           <!-- Hamburger button -->
           <button id="mobile-menu-btn"
-                  onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
                   class="text-gray-400 hover:text-white p-2 rounded-lg transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -228,7 +233,7 @@
       </div>
 
       <!-- Mobile Menu -->
-      <div id="mobile-menu" class="md:hidden hidden pb-4 border-t border-dark-50 pt-3">
+      <div id="mobile-menu" class="hidden pb-4 border-t border-dark-50 pt-3 md:hidden-force">
         <div class="flex flex-col gap-1">
           <a href="{% url 'home' %}" class="nav-link px-2 py-2">Home</a>
           <a href="{% url 'browse' %}" class="nav-link px-2 py-2">Browse</a>
@@ -415,7 +420,16 @@
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
     if (btn && menu) {
-      btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+      // Close menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add('hidden');
+        }
+      });
     }
 
     // User dropdown — click to open/close
