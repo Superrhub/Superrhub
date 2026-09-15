@@ -10,7 +10,7 @@
   </div>
 
   <!-- Stats Overview -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
     <div class="rounded-xl border p-5 text-center" style="background:#0d0d1a; border-color:#1a1a2e;">
       <div class="text-3xl font-bold text-blue-500">{{ total_stories }}</div>
       <div class="text-gray-500 text-sm mt-1">Stories</div>
@@ -26,6 +26,22 @@
     <div class="rounded-xl border p-5 text-center" style="background:#0d0d1a; border-color:#1a1a2e;">
       <div class="text-3xl font-bold text-blue-500">{{ total_comments }}</div>
       <div class="text-gray-500 text-sm mt-1">Comments</div>
+    </div>
+  </div>
+
+  <!-- Revenue & Subscribers -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+    <div class="rounded-xl border p-5 text-center" style="background:#0a1a0a; border-color:rgba(34,197,94,0.3);">
+      <div class="text-3xl font-bold text-green-400">₦{{ writer_earnings|floatformat:"0" }}</div>
+      <div class="text-gray-500 text-sm mt-1">💰 Your Earnings <span class="text-xs">(50%)</span></div>
+    </div>
+    <div class="rounded-xl border p-5 text-center" style="background:#0d0d1a; border-color:rgba(250,204,21,0.3);">
+      <div class="text-3xl font-bold text-yellow-400">{{ total_subscribers }}</div>
+      <div class="text-gray-500 text-sm mt-1">🎯 Subscribers</div>
+    </div>
+    <div class="rounded-xl border p-5 text-center" style="background:#0d0d1a; border-color:#1a1a2e;">
+      <div class="text-3xl font-bold text-blue-400">₦{{ total_revenue|floatformat:"0" }}</div>
+      <div class="text-gray-500 text-sm mt-1">📊 Total Sales</div>
     </div>
   </div>
 
@@ -64,7 +80,7 @@
           </div>
 
           <!-- Stats bars -->
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-4 gap-4">
             <div class="text-center">
               <div class="text-xl font-bold text-blue-500">{{ item.story.views_count }}</div>
               <div class="text-xs text-gray-600 mt-0.5">👁 Views</div>
@@ -85,6 +101,13 @@
               <div class="mt-2 h-1.5 rounded-full" style="background:#222;">
                 <div class="h-full rounded-full" style="background:#3b82f6; width:{% if max_comments > 0 %}{% widthratio item.comments max_comments 100 %}{% else %}0{% endif %}%;"></div>
               </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xl font-bold text-yellow-400">{{ item.purchases }}</div>
+              <div class="text-xs text-gray-600 mt-0.5">🎯 Subscribers</div>
+              {% if item.earned > 0 %}
+                <div class="text-xs text-green-400 mt-1 font-semibold">₦{{ item.earned|floatformat:"0" }}</div>
+              {% endif %}
             </div>
           </div>
 

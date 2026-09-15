@@ -50,19 +50,15 @@ def register_view(request):
         elif User.objects(email=data['email']).first():
             form.add_error('email', 'This email is already registered.')
         else:
-            user = User(
-                username=data['username'],
-                email=data['email'],
-                bio=data.get('bio', ''),
-                role=data.get('role', 'reader'),
-            )
-            user.set_password(data['password'])
-            user.save()
-            request.session['user_id'] = str(user.id)
-            request.session['username'] = user.username
-            request.session['role'] = user.role
-            messages.success(request, f'Welcome to SuperRHub, {user.username}! 🎉')
-            return redirect('home')
+            # Save form data in session, redirect to pay ₦500 before account is created
+            request.session['pending_registration'] = {
+                'username': data['username'],
+                'email':    data['email'],
+                'password': data['password'],
+                'bio':      data.get('bio', ''),
+                'role':     data.get('role', 'reader'),
+            }
+            return redirect('pay_to_register')
     return render(request, 'auth/register.html', {'form': form})
 
 
@@ -208,12 +204,26 @@ def profile_view(request, username):
     is_following = (
         current_user and str(profile_user.id) in current_user.following
     )
+
+    # Subscribers = unique readers who bought any of this writer's stories
+    from apps.interactions.models import Purchase
+    story_ids = [str(s.id) for s in user_stories]
+    subscriber_count = 0
+    total_earned = 0
+    if story_ids:
+        purchases = list(Purchase.objects(story_id__in=story_ids, verified=True))
+        unique_buyers = set(p.user_id for p in purchases)
+        subscriber_count = len(unique_buyers)
+        total_earned = sum(p.amount for p in purchases) * 0.5  # writer gets 50%
+
     return render(request, 'users/profile.html', {
         'profile_user': profile_user,
         'user_stories': user_stories,
         'is_own': is_own,
         'is_following': is_following,
         'current_user': current_user,
+        'subscriber_count': subscriber_count,
+        'total_earned': total_earned,
     })
 
 
@@ -421,8 +431,10 @@ def admin_purchases(request):
     from apps.stories.models import Story
     purchases = list(Purchase.objects(verified=True).order_by('-created_at')[:200])
     total_revenue = sum(p.amount for p in purchases)
+    platform_earnings = total_revenue * 0.5
+    writer_payouts = total_revenue * 0.5
 
-    # Get story titles
+    # Get story titles and author info
     purchase_data = []
     for p in purchases:
         story = Story.objects(id=p.story_id).first()
@@ -430,11 +442,16 @@ def admin_purchases(request):
         purchase_data.append({
             'purchase': p,
             'story_title': story.title if story else 'Unknown',
+            'author': story.author_username if story else 'Unknown',
             'username': user.username if user else 'Unknown',
+            'writer_cut': p.amount * 0.5,
+            'platform_cut': p.amount * 0.5,
         })
 
     return render(request, 'admin/purchases.html', {
         'current_user': get_current_user(request),
         'purchases': purchase_data,
         'total_revenue': total_revenue,
+        'platform_earnings': platform_earnings,
+        'writer_payouts': writer_payouts,
     })

@@ -60,7 +60,22 @@
           <div class="text-xl font-bold text-blue-500">{{ user_stories|length|compact_number }}</div>
           <div class="text-gray-500 text-xs">Stories</div>
         </div>
+        {% if subscriber_count > 0 or is_own %}
+        <div class="w-px h-8" style="background:#222;"></div>
+        <div class="text-center">
+          <div class="text-xl font-bold text-yellow-400">{{ subscriber_count|compact_number }}</div>
+          <div class="text-gray-500 text-xs">Subscribers</div>
+        </div>
+        {% endif %}
       </div>
+
+      {% if is_own and total_earned > 0 %}
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl mb-4 text-sm font-semibold"
+             style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2); color:#22c55e;">
+          💰 Your earnings: ₦{{ total_earned|floatformat:"0" }}
+          <span class="text-xs font-normal text-gray-500">(50% of sales)</span>
+        </div>
+      {% endif %}
 
       <!-- Action Buttons -->
       <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">

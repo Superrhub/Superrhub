@@ -124,3 +124,16 @@ class CommentReport(Document):
         'collection': 'comment_reports',
         'indexes': ['comment_id', 'resolved'],
     }
+
+
+class RegistrationPayment(Document):
+    """Tracks ₦500 registration fee payment before account creation."""
+    reference   = StringField(required=True, unique=True)
+    email       = StringField(required=True)
+    verified    = BooleanField(default=False)
+    created_at  = DateTimeField(default=datetime.utcnow)
+
+    meta = {
+        'collection': 'registration_payments',
+        'indexes': ['reference', 'email'],
+    }

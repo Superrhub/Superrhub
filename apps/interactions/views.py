@@ -327,3 +327,84 @@ def report_comment(request, comment_id):
     ).save()
 
     return JsonResponse({'status': 'reported'})
+
+
+def pay_to_register(request):
+    """Show Paystack checkout for ₦500 registration fee."""
+    # Must have pending registration data
+    pending = request.session.get('pending_registration')
+    if not pending:
+        return redirect('register')
+
+    import os
+    PAYSTACK_PUBLIC = os.getenv('PAYSTACK_PUBLIC_KEY', '')
+
+    return render(request, 'auth/pay_to_register.html', {
+        'pending': pending,
+        'paystack_public_key': PAYSTACK_PUBLIC,
+        'amount_kobo': 500 * 100,   # ₦500 in kobo
+    })
+
+
+def verify_registration_payment(request):
+    """Verify ₦500 Paystack payment then create the account."""
+    from .models import RegistrationPayment
+    from apps.users.models import User
+
+    reference = request.GET.get('reference', '')
+    pending   = request.session.get('pending_registration')
+
+    if not reference or not pending:
+        messages.error(request, 'Registration session expired. Please try again.')
+        return redirect('register')
+
+    # Don't create duplicate accounts
+    if User.objects(email=pending['email']).first():
+        messages.error(request, 'This email is already registered. Please log in.')
+        return redirect('login')
+
+    import os, json, urllib.request, urllib.error
+    PAYSTACK_SECRET = os.getenv('PAYSTACK_SECRET_KEY', '')
+
+    try:
+        url = f'https://api.paystack.co/transaction/verify/{reference}'
+        req = urllib.request.Request(url)
+        req.add_header('Authorization', f'Bearer {PAYSTACK_SECRET}')
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode())
+
+        if data.get('data', {}).get('status') == 'success':
+            # Save payment record
+            RegistrationPayment(
+                reference=reference,
+                email=pending['email'],
+                verified=True,
+            ).save()
+
+            # Create the user account
+            user = User(
+                username=pending['username'],
+                email=pending['email'],
+                bio=pending.get('bio', ''),
+                role=pending.get('role', 'reader'),
+            )
+            user.set_password(pending['password'])
+            user.save()
+
+            # Clear pending session data
+            del request.session['pending_registration']
+
+            # Log them in immediately
+            request.session['user_id']  = str(user.id)
+            request.session['username'] = user.username
+            request.session['role']     = user.role
+
+            messages.success(request, f'Welcome to SuperRHub, {user.username}! 🎉')
+            return redirect('home')
+        else:
+            messages.error(request, 'Payment could not be verified. Please try again.')
+            return redirect('pay_to_register')
+
+    except Exception:
+        messages.error(request, 'Payment verification failed. Please contact support.')
+        return redirect('pay_to_register')
